@@ -10,7 +10,7 @@ import Model.Item;
 // Classe principal do programa.
 public class Main{
 
-    // Método "main": é a primeira coisa que o Java executa quando você roda o programa.
+    // Método "main": é a primeira coisa que o Java executa ao rodar o programa.
     public static void main(String[] args){
 
         // 1. Prepara o estado inicial do jogo
