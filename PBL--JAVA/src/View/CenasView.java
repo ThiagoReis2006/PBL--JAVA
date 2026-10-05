@@ -17,6 +17,7 @@ public class CenasView {
 
         List<Escolha> escolhas = cena.getEscolhas();
         if (!escolhas.isEmpty()) {
+            System.out.println("-1 - [Salvar Jogo]");
             System.out.println("0 - [Abrir Status e Inventário]");
             for (int i = 0; i < escolhas.size(); i++) {
                 System.out.println((i + 1) + " - " + escolhas.get(i).getTexto());
@@ -31,10 +32,10 @@ public class CenasView {
             try {
                 opcao = Integer.parseInt(entrada.nextLine().trim());
 
-                if (opcao >= 0 && opcao <= max) {
+                if (opcao == -1 || opcao == 0 || (opcao >= 1 && opcao <= max)) {
                     return opcao;
                 } else {
-                    System.out.println("Opção inválida! Escolha um número entre 0 e " + max + ".");
+                    System.out.println("Opção inválida! Escolha um número entre -1 e " + max + ".");
                 }
             } catch (NumberFormatException e) {
                 System.out.println("Entrada inválida! Por favor, não digite letras, use apenas números.");

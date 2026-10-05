@@ -20,6 +20,10 @@ public class CenasController {
         this.jogo = jogo;
     }
 
+    public void setJogoCarregado(IntegracaoJogo jogoSalvo, CenasIds cenaSalva) {
+        this.atual = cenaSalva;
+    }
+
     // Método principal que faz o jogo rodar
     public void jogar() {
 
@@ -48,6 +52,24 @@ public class CenasController {
             if (opcao == 0) {
                 view.exibirStatus(jogo);
                 continue; // Volta para o início do "while" sem mudar de cena
+            }
+
+            if (opcao == -1) {
+                try {
+                    GerenciadorSave gerenciador = new GerenciadorSave();
+                    SalvarDados dadosDoSave = new SalvarDados(
+                            "Toin",
+                            atual.name(),
+                            "Progresso salvo manualmente.",
+                            this.jogo,
+                            this.atual
+                    );
+                    gerenciador.salvar(dadosDoSave, 1);
+                    System.out.println("\n Jogo salvo com sucesso!\n");
+                } catch (FalhaSalvamentoException e) {
+                    System.out.println("\nFalha ao salvar: " + e.getMessage() + "\n");
+                }
+                continue;
             }
 
             // Pega a opção exata que o jogador escolheu (diminui 1 porque listas no Java começam no zero)

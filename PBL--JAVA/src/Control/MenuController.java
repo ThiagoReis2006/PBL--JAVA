@@ -1,5 +1,7 @@
 package Control;
 
+import Model.GerenciadorSave;
+import Model.SalvarDados;
 import View.CenasView;
 import View.MenuView;
 
@@ -36,14 +38,31 @@ public class MenuController {
                 MenuView.exibeInstrucoes();       // Mostra a tela que ensina a jogar
             }
 
-            // Opção 3: Ver os créditos
+            // Opção 3: Carregar jogo
             case 3 -> {
+                System.out.println("\nTentando carregar o Slot 1...\n");
+                try {
+                    GerenciadorSave gerenciador = new GerenciadorSave();
+                    SalvarDados dados = gerenciador.carregar(1);
+
+                    System.out.println("Save encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
+
+                    cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
+                    cenasController.jogar();
+
+                } catch (Exception e) {
+                    System.out.println("\nNenhum progresso encontrado neste slot.\n");
+                }
+            }
+
+            // Opção 4: Ver os créditos
+            case 4 -> {
                 System.out.println("\n");
                 MenuView.exibeCredito();          // Mostra quem desenvolveu o jogo
             }
 
-            // Opção 4: Sair do jogo
-            case 4 -> {
+            // Opção 5: Sair do jogo
+            case 5 -> {
                 System.out.println("\n");
                 MenuView.saida();                 // Mostra a mensagem de despedida e fecha o jogo
             }
