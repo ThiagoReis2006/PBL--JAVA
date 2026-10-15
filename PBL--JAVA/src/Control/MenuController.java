@@ -1,9 +1,9 @@
 package Control;
 
-import Model.GerenciadorSave;
-import Model.SalvarDados;
+import Model.*;
 import View.CenasView;
 import View.MenuView;
+import View.MenuSaveCarregarView;
 
 // Classe responsável por controlar as opções do Menu Principal do jogo
 public class MenuController {
@@ -40,19 +40,36 @@ public class MenuController {
 
             // Opção 3: Carregar jogo
             case 3 -> {
-                System.out.println("\nTentando carregar o Slot 1...\n");
-                try {
-                    GerenciadorSave gerenciador = new GerenciadorSave();
-                    SalvarDados dados = gerenciador.carregar(1);
+                // 1. Prepara o estado inicial do jogo
+                // Cria a central que guarda todas as informações da partida (personagem, banda, etc.)
+                IntegracaoJogo jogo = new IntegracaoJogo();
 
-                    System.out.println("Save encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
+                // Logo no começo, coloca dois itens na mochila (inventário) do personagem
+                jogo.getInventario().adicionarItem(new Item("Cavaquinho de Feira", "Relembra a motivação e o peso das economias gastas na passagem de ônibus."));
+                jogo.getInventario().adicionarItem(new Item("Panfleto do Concurso", "Lembrete do objetivo principal: prêmio de R$ 10.000 e as regras da gravadora."));
 
-                    cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
-                    cenasController.jogar();
+                // 2. Prepara a tela e o criador de personagem
+                CenasView c1 = new CenasView(); // Cria a tela onde os textos da história vão aparecer
+                // Cria o controlador que vai guiar o jogador na hora de distribuir os atributos
+                PersonagemController personagemController = new PersonagemController(jogo.getProtagonista(), c1);
 
-                } catch (Exception e) {
-                    System.out.println("\nNenhum progresso encontrado neste slot.\n");
-                }
+                // 3. Prepara o "motor" da história
+                RepositorioCenas repositorio = new RepositorioCenas(); // Cria o "livro" que contém todas as cenas
+                // Cria o controlador que vai virar as páginas da história e aplicar as escolhas
+                CenasController cenasController = new CenasController(repositorio, c1, jogo);
+
+
+
+
+                //cria objeto menu salvar controller
+                MenuSaveCarregarController menuSaveCarregarController = new MenuSaveCarregarController(cenasController);
+
+
+
+                //cria objeto menu salvar view
+                MenuSaveCarregarView menuSaveCarregarView = new MenuSaveCarregarView();
+                menuSaveCarregarView.iniciarMenuSaveCarregar(menuSaveCarregarController);
+
             }
 
             // Opção 4: Ver os créditos

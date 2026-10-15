@@ -12,11 +12,11 @@ public class MenuView {
         do {
             System.out.println("\nO SHOW TEM DE CONTINUAR\n");
             System.out.println("----Menu----");
-            System.out.println("1- Nova Partida");
-            System.out.println("2- Instruções");
+            System.out.println("1 - Nova Partida");
+            System.out.println("2 - Instruções");
             System.out.println("3 - Carregar Jogo");
-            System.out.println("4- Créditos");
-            System.out.println("5- Saída\n");
+            System.out.println("4 - Créditos");
+            System.out.println("5 - Saída\n");
             System.out.print("Escolha uma opção: ");
 
             try {
