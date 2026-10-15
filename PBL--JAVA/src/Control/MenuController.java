@@ -4,6 +4,7 @@ import Model.*;
 import View.CenasView;
 import View.MenuView;
 import View.MenuSaveCarregarView;
+import View.MenuDeletarView;
 
 // Classe responsável por controlar as opções do Menu Principal do jogo
 public class MenuController {
@@ -32,14 +33,36 @@ public class MenuController {
                 cenasController.jogar();          // Começa a passar as cenas do jogo
             }
 
-            // Opção 2: Ver as instruções
             case 2 -> {
+                try {
+                    GerenciadorSave gerenciador = new GerenciadorSave();
+                    int slot = gerenciador.slotMaisRecente();
+
+                    if (slot == -1) {
+                        System.out.println("\nNenhum progresso encontrado.\n");
+                    } else {
+                        SalvarDados dados = gerenciador.carregar(slot);
+
+                        System.out.println("Save encontrado no slot " + slot + "! Jogador: "
+                                + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
+
+                        cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
+                        cenasController.jogar();
+                    }
+
+                } catch (Exception e) {
+                    System.out.println("\nFalha ao carregar o save: " + e.getMessage() + "\n");
+                }
+            }
+
+            // Opção 3: Ver as instruções
+            case 3 -> {
                 System.out.println("\n");
                 MenuView.exibeInstrucoes();       // Mostra a tela que ensina a jogar
             }
 
-            // Opção 3: Carregar jogo
-            case 3 -> {
+            // Opção 4: Carregar jogo
+            case 4 -> {
                 // 1. Prepara o estado inicial do jogo
                 // Cria a central que guarda todas as informações da partida (personagem, banda, etc.)
                 IntegracaoJogo jogo = new IntegracaoJogo();
@@ -58,13 +81,8 @@ public class MenuController {
                 // Cria o controlador que vai virar as páginas da história e aplicar as escolhas
                 CenasController cenasController = new CenasController(repositorio, c1, jogo);
 
-
-
-
                 //cria objeto menu salvar controller
                 MenuSaveCarregarController menuSaveCarregarController = new MenuSaveCarregarController(cenasController);
-
-
 
                 //cria objeto menu salvar view
                 MenuSaveCarregarView menuSaveCarregarView = new MenuSaveCarregarView();
@@ -72,14 +90,22 @@ public class MenuController {
 
             }
 
-            // Opção 4: Ver os créditos
-            case 4 -> {
+            case 5 -> {
+                System.out.println("\n");
+                MenuDeletarView menuDeletarView = new MenuDeletarView();
+                MenuDeletarController menuDeletarController =
+                        new MenuDeletarController(new GerenciadorSave(), menuDeletarView);
+                menuDeletarView.iniciarMenuDeletar(menuDeletarController);
+            }
+
+            // Opção 6: Ver os créditos
+            case 6 -> {
                 System.out.println("\n");
                 MenuView.exibeCredito();          // Mostra quem desenvolveu o jogo
             }
 
-            // Opção 5: Sair do jogo
-            case 5 -> {
+            // Opção 7: Sair do jogo
+            case 7 -> {
                 System.out.println("\n");
                 MenuView.saida();                 // Mostra a mensagem de despedida e fecha o jogo
             }

@@ -3,17 +3,15 @@ package Control;
 import Model.*;
 import View.CenasView;
 
-// Classe que controla o andamento do jogo, passando de uma cena para a outra
 public class CenasController {
 
-    private final RepositorioCenas repositorio; // Onde ficam salvas todas as cenas do jogo
-    private final CenasView view;               // Responsável por mostrar os textos na tela
-    private final IntegracaoJogo jogo;          // Guarda os dados do jogador (vida, itens, etc.)
+    private final RepositorioCenas repositorio;
+    private final CenasView view;
+    private final IntegracaoJogo jogo;
+    private CenasIds ultimaCenaExibida = null;
 
-    // O jogo sempre começa nesta cena (Bar)
     private CenasIds atual = CenasIds.CAP1_BAR;
 
-    // Prepara o controlador com tudo que ele precisa para funcionar
     public CenasController(RepositorioCenas repositorio, CenasView view, IntegracaoJogo jogo) {
         this.repositorio = repositorio;
         this.view = view;
@@ -22,60 +20,84 @@ public class CenasController {
 
     public void setJogoCarregado(IntegracaoJogo jogoSalvo, CenasIds cenaSalva) {
         this.atual = cenaSalva;
+        this.ultimaCenaExibida = cenaSalva;
     }
 
-    // Método principal que faz o jogo rodar
+    private void salvarJogo() {
+        GerenciadorSave gerenciador = new GerenciadorSave();
+
+        try {
+            int slotDestino = -1;
+
+            // procura o primeiro slot vazio
+            for (int slot = 1; slot <= 3; slot++) {
+                if (!gerenciador.slotTemSave(slot)) {
+                    slotDestino = slot;
+                    break;
+                }
+            }
+
+            // todos cheios: sugere o mais antigo e pede confirmação
+            if (slotDestino == -1) {
+                slotDestino = gerenciador.slotMaisAntigo();
+                if (!view.confirmarSobrescrita(slotDestino)) {
+                    System.out.println("\nSave cancelado.\n");
+                    return;
+                }
+            }
+
+            SalvarDados dadosDoSave = new SalvarDados(
+                    "Toin",
+                    atual.name(),
+                    "Progresso salvo.",
+                    this.jogo,
+                    this.atual
+            );
+            gerenciador.salvar(dadosDoSave, slotDestino);
+            System.out.println("\nJogo salvo no slot " + slotDestino + "!\n");
+
+        } catch (FalhaSalvamentoException e) {
+            System.out.println("\nFalha ao salvar: " + e.getMessage() + "\n");
+        }
+    }
+
+
     public void jogar() {
 
-        // O jogo fica repetindo esse bloco de código infinitamente
         while (true) {
 
-            // Pega a cena atual e mostra o texto dela na tela
             Cena cena = repositorio.buscar(atual);
             view.exibirCena(cena);
 
-            // Se for uma cena de final de jogo (ganhou ou perdeu), fecha o programa
+            // Ponto de salvamento automático: só ao CHEGAR na praça
+            if (cena.id == CenasIds.CAP5_PRACA && ultimaCenaExibida != CenasIds.CAP5_PRACA) {
+                System.out.println("\n=== Você chegou a um ponto de salvamento automático ===");
+                salvarJogo();
+            }
+            ultimaCenaExibida = cena.id;
+
             if (cena.eFim()) {
                 System.exit(0);
             }
 
-            // Se a cena for só de leitura e não tiver escolhas, pula direto pra próxima
             if (cena.getEscolhas().isEmpty()) {
                 atual = cena.destinoPadrao;
-                continue; // Volta para o início do "while" para carregar a nova cena
-            }
-
-            // Pede para o jogador digitar o número da escolha que ele quer fazer
-            int opcao = view.pedirEscolha(cena.getEscolhas().size());
-
-            // Se o jogador digitar 0, ele só quer ver o status (vida/itens). O jogo não avança.
-            if (opcao == 0) {
-                view.exibirStatus(jogo);
-                continue; // Volta para o início do "while" sem mudar de cena
-            }
-
-            if (opcao == -1) {
-                try {
-                    GerenciadorSave gerenciador = new GerenciadorSave();
-                    SalvarDados dadosDoSave = new SalvarDados(
-                            "Toin",
-                            atual.name(),
-                            "Progresso salvo manualmente.",
-                            this.jogo,
-                            this.atual
-                    );
-                    gerenciador.salvar(dadosDoSave, 1);
-                    System.out.println("\n Jogo salvo com sucesso!\n");
-                } catch (FalhaSalvamentoException e) {
-                    System.out.println("\nFalha ao salvar: " + e.getMessage() + "\n");
-                }
                 continue;
             }
 
-            // Pega a opção exata que o jogador escolheu (diminui 1 porque listas no Java começam no zero)
-            Escolha escolhida = cena.getEscolhas().get(opcao - 1);
+            int opcao = view.pedirEscolha(cena.getEscolhas().size());
 
-            // Aplica os efeitos da escolha (ex: perder vida) e diz qual será a próxima cena
+            if (opcao == 0) {
+                view.exibirStatus(jogo);
+                continue;
+            }
+
+            if (opcao == -1) {
+                salvarJogo();
+                continue;
+            }
+
+            Escolha escolhida = cena.getEscolhas().get(opcao - 1);
             escolhida.aplicarEfeito(jogo);
             atual = escolhida.getDestino(jogo);
         }

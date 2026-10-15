@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.File;
 
 public class GerenciadorSave {
 
@@ -31,5 +32,48 @@ public class GerenciadorSave {
         } catch (IOException e) {
             throw new FalhaSalvamentoException("Erro ao tentar salvar o jogo no slot " + slot + ": " + e.getMessage());
         }
+    }
+
+    //Verifica se o arquivo existe e se tem algo dentro dele
+    public boolean slotTemSave(int slot) {
+        File arquivo = new File("save_slot_" + slot + ".json");
+        return arquivo.exists() && arquivo.length() > 0;
+    }
+
+    //determina o slot mais antigo
+    public int slotMaisAntigo() {
+        int escolhido = 1;
+        long menorData = Long.MAX_VALUE;
+
+        for (int slot = 1; slot <= 3; slot++) {
+            long data = new File("save_slot_" + slot + ".json").lastModified();
+            if (data < menorData) {
+                menorData = data;
+                escolhido = slot;
+            }
+        }
+        return escolhido;
+    }
+
+    public int slotMaisRecente() {
+        int escolhido = -1;
+        long maiorData = 0;
+
+        for (int slot = 1; slot <= 3; slot++) {
+            File arquivo = new File("save_slot_" + slot + ".json");
+            if (arquivo.exists() && arquivo.length() > 0) {
+                long data = arquivo.lastModified();
+                if (data > maiorData) {
+                    maiorData = data;
+                    escolhido = slot;
+                }
+            }
+        }
+        return escolhido; // -1 se nenhum slot tem save
+    }
+
+    public boolean deletar(int slot) {
+        File arquivo = new File("save_slot_" + slot + ".json");
+        return arquivo.exists() && arquivo.delete();
     }
 }

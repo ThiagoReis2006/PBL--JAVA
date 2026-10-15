@@ -134,4 +134,21 @@ public class CenasView {
         }
         System.out.println("\n");
     }
+
+    public boolean confirmarSobrescrita(int slot) {
+        while (true) {
+            System.out.println("Todos os slots estão ocupados. Deseja sobrescrever o Slot " + slot + "?");
+            System.out.println("1 - Sim");
+            System.out.println("2 - Não");
+            System.out.print("Escolha uma opção: ");
+            try {
+                int resp = Integer.parseInt(entrada.nextLine().trim());
+                if (resp == 1) return true;
+                if (resp == 2) return false;
+            } catch (NumberFormatException e) {
+                // cai na mensagem abaixo
+            }
+            System.out.println("Opção inválida!");
+        }
+    }
 }
