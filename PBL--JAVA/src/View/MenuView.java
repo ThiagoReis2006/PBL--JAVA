@@ -9,6 +9,9 @@ public class MenuView {
         Scanner entrada = new Scanner(System.in);
         int opcao = 0;
 
+        Model.GerenciadorSave ger = new Model.GerenciadorSave();
+        boolean desbloqueado = ger.carregarDadosGlobais().isCenaSecretaDesbloqueada();
+
         do {
             System.out.println("\nO SHOW TEM DE CONTINUAR\n");
             System.out.println("----Menu----");
@@ -18,7 +21,16 @@ public class MenuView {
             System.out.println("4 - Carregar Jogo");
             System.out.println("5 - Deletar Saves");
             System.out.println("6 - Créditos");
-            System.out.println("7 - Saída\n");
+            System.out.println("7 - Saída");
+
+            if (desbloqueado) {
+                System.out.println("8 - Epílogo Secreto (DESBLOQUEADO!)");
+            } else {
+                System.out.println("8 - ??? (Desbloqueie os 3 finais)");
+            }
+
+            System.out.println("9 - Opções\n");
+
             System.out.print("Escolha uma opção: ");
 
             try {
@@ -29,7 +41,7 @@ public class MenuView {
                 opcao = 0;
             }
 
-        } while (opcao != 6);
+        }  while (opcao != 7);
     }
 
     public static void exibeCredito(){

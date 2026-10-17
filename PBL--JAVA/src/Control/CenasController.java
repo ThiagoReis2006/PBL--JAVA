@@ -10,6 +10,8 @@ public class CenasController {
     private final IntegracaoJogo jogo;
     private CenasIds ultimaCenaExibida = null;
 
+    private int slotAtual = -1;
+
     private CenasIds atual = CenasIds.CAP1_BAR;
 
     public CenasController(RepositorioCenas repositorio, CenasView view, IntegracaoJogo jogo) {
@@ -18,32 +20,35 @@ public class CenasController {
         this.jogo = jogo;
     }
 
-    public void setJogoCarregado(IntegracaoJogo jogoSalvo, CenasIds cenaSalva) {
+    public void setJogoCarregado(IntegracaoJogo jogoSalvo, CenasIds cenaSalva, int slot) {
         this.atual = cenaSalva;
         this.ultimaCenaExibida = cenaSalva;
+        this.slotAtual = slot;
     }
 
     private void salvarJogo() {
         GerenciadorSave gerenciador = new GerenciadorSave();
 
         try {
-            int slotDestino = -1;
+            int slotDestino = this.slotAtual;
 
-            // procura o primeiro slot vazio
-            for (int slot = 1; slot <= 3; slot++) {
-                if (!gerenciador.slotTemSave(slot)) {
-                    slotDestino = slot;
-                    break;
-                }
-            }
-
-            // todos cheios: sugere o mais antigo e pede confirmação
             if (slotDestino == -1) {
-                slotDestino = gerenciador.slotMaisAntigo();
-                if (!view.confirmarSobrescrita(slotDestino)) {
-                    System.out.println("\nSave cancelado.\n");
-                    return;
+                for (int slot = 1; slot <= 3; slot++) {
+                    if (!gerenciador.slotTemSave(slot)) {
+                        slotDestino = slot;
+                        break;
+                    }
                 }
+
+                if (slotDestino == -1) {
+                    slotDestino = gerenciador.slotMaisAntigo();
+                    if (!view.confirmarSobrescrita(slotDestino)) {
+                        System.out.println("\nSave cancelado.\n");
+                        return;
+                    }
+                }
+
+                this.slotAtual = slotDestino;
             }
 
             SalvarDados dadosDoSave = new SalvarDados(
@@ -69,14 +74,32 @@ public class CenasController {
             Cena cena = repositorio.buscar(atual);
             view.exibirCena(cena);
 
-            // Ponto de salvamento automático: só ao CHEGAR na praça
-            if (cena.id == CenasIds.CAP5_PRACA && ultimaCenaExibida != CenasIds.CAP5_PRACA) {
+            boolean chegouNaPraca = (cena.id == CenasIds.CAP5_PRACA && ultimaCenaExibida != CenasIds.CAP5_PRACA);
+            boolean chegouNoFinal = ((cena.id == CenasIds.CAP10_FINAL_FALSO ||
+                    cena.id == CenasIds.CAP10_FINAL_ESSENCIALISTA ||
+                    cena.id == CenasIds.CAP10_FINAL_HARMONIOSO) &&
+                    ultimaCenaExibida != cena.id);
+
+            if (chegouNaPraca || chegouNoFinal) {
                 System.out.println("\n=== Você chegou a um ponto de salvamento automático ===");
                 salvarJogo();
             }
+
             ultimaCenaExibida = cena.id;
 
             if (cena.eFim()) {
+                GerenciadorSave gerGlobal = new GerenciadorSave();
+                DadosGlobais globais = gerGlobal.carregarDadosGlobais();
+
+                globais.adicionarFinal(cena.id.name());
+
+                try {
+                    gerGlobal.salvarDadosGlobais(globais);
+                    System.out.println("\n*** Progresso Global: Final (" + cena.id.name() + ") registrado com sucesso! ***\n");
+                } catch (FalhaSalvamentoException e) {
+                    System.out.println("\nErro ao guardar progresso global: " + e.getMessage() + "\n");
+                }
+
                 System.exit(0);
             }
 

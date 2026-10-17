@@ -46,7 +46,7 @@ public class MenuController {
                         System.out.println("Save encontrado no slot " + slot + "! Jogador: "
                                 + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
 
-                        cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
+                        cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual(), slot);
                         cenasController.jogar();
                     }
 
@@ -108,6 +108,103 @@ public class MenuController {
             case 7 -> {
                 System.out.println("\n");
                 MenuView.saida();                 // Mostra a mensagem de despedida e fecha o jogo
+            }
+
+            // Opção 8: Conteúdo Desbloqueável (Epílogo Secreto)
+            case 8 -> {
+                GerenciadorSave ger = new GerenciadorSave();
+                DadosGlobais globais = ger.carregarDadosGlobais();
+
+                if (globais.isCenaSecretaDesbloqueada()) {
+                    System.out.println("\n--- EPÍLOGO SECRETO: 5 ANOS DEPOIS ---\n");
+                    String epilogo = "O tempo passou, mas algumas coisas nunca mudam. Independentemente de terem assinado com a " +
+                            "gravadora gigante ou ficado no circuito independente, hoje é o aniversário de fundação da banda.\n" +
+                            "O bar da Dona Gertrudes está de portas fechadas para o público geral, reservado apenas para vocês. " +
+                            "Léo tenta (sem sucesso) ensinar passos de dança para Jorge, enquanto Betinho e Manuela conferem os lucros " +
+                            "da última turnê. Toin senta num canto, afina o mesmo cavaquinho que trouxe de Feira de Santana, e sorri. " +
+                            "O show continua, e a família está completa.\n";
+                    CenasView.imprimirTextoFormatado(epilogo, 80);
+
+                    System.out.println("\nObrigado por jogar 'O Show Tem de Continuar' e descobrir todos os finais!\n");
+                } else {
+                    java.util.List<String> finais = globais.getFinaisAlcancados();
+
+                    System.out.println("\n[!] Conteúdo bloqueado.");
+                    System.out.println("Você precisa alcançar 3 finais diferentes para liberar esta cena.");
+                    System.out.println("Finais descobertos até agora (" + finais.size() + "/3):");
+
+                    if (finais.isEmpty()) {
+                        System.out.println("- Nenhum final alcançado ainda.");
+                    } else {
+                        for (String f : finais) {
+                            System.out.println("- " + f);
+                        }
+                    }
+                    System.out.println();
+                }
+            }
+
+            // Opção 9: Configurações Persistentes
+            case 9 -> {
+                try {
+                    GerenciadorSave ger = new GerenciadorSave();
+                    DadosGlobais globais = ger.carregarDadosGlobais();
+                    Configuracoes config = globais.getConfiguracoes();
+
+                    java.util.Scanner sc = new java.util.Scanner(System.in);
+                    int respOpcoes = 0;
+
+                    do {
+                        System.out.println("\n--- OPÇÕES ---");
+                        System.out.println("1 - Ocultar UHD (Interface): " + (config.isOcultarUHD() ? "LIGADO" : "DESLIGADO"));
+
+                        // Formatação do nome do tema visual escolhido
+                        String nomeTema = "NEUTRO";
+                        if (config.getTemaVisual() == 2) nomeTema = "ESCURO";
+                        else if (config.getTemaVisual() == 3) nomeTema = "CLARO";
+
+                        System.out.println("2 - Tema Visual: " + nomeTema);
+                        System.out.println("3 - Cor das Letras: " + config.getCorLetras());
+                        System.out.println("4 - Voltar ao Menu Principal");
+                        System.out.print("Escolha o que alterar: ");
+
+                        try {
+                            respOpcoes = Integer.parseInt(sc.nextLine().trim());
+
+                            // Lógica para alternar as opções
+                            if (respOpcoes == 1) {
+                                config.setOcultarUHD(!config.isOcultarUHD());
+                            } else if (respOpcoes == 2) {
+                                // Roda entre Neutro(1), Escuro(2) e Claro(3)
+                                int novoTema = config.getTemaVisual() + 1;
+                                if (novoTema > 3) novoTema = 1;
+                                config.setTemaVisual(novoTema);
+                            } else if (respOpcoes == 3) {
+                                // Roda entre as cores
+                                switch (config.getCorLetras()) {
+                                    case "Branco" -> config.setCorLetras("Verde");
+                                    case "Verde" -> config.setCorLetras("Amarelo");
+                                    case "Amarelo" -> config.setCorLetras("Azul");
+                                    default -> config.setCorLetras("Branco");
+                                }
+                            }
+
+                            // Grava no ficheiro de imediato
+                            if (respOpcoes >= 1 && respOpcoes <= 3) {
+                                ger.salvarDadosGlobais(globais);
+                                System.out.println("\n[!] Configuração guardada com sucesso!");
+                            }
+
+                        } catch (NumberFormatException e) {
+                            System.out.println("\nOpção inválida! Digite um número.");
+                            respOpcoes = 0;
+                        }
+
+                    } while (respOpcoes != 4);
+
+                } catch (Exception e) {
+                    System.out.println("\nErro ao aceder às configurações.");
+                }
             }
 
             // Se o jogador digitar qualquer outro número que não seja de 1 a 4

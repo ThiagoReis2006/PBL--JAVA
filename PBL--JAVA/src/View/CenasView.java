@@ -12,13 +12,23 @@ public class CenasView {
     private Scanner entrada = new Scanner(System.in);
 
     public void exibirCena(Cena cena) {
+        View.EstiloVisual.aplicarEstilo(); // Aplica a cor e o fundo escolhidos!
         System.out.println();
         imprimirTextoFormatado(cena.getTexto(), 80);
 
         List<Escolha> escolhas = cena.getEscolhas();
         if (!escolhas.isEmpty()) {
-            System.out.println("-1 - [Salvar Jogo]");
-            System.out.println("0 - [Abrir Status e Inventário]");
+
+            // Lê se o UHD deve ser ocultado
+            Model.GerenciadorSave ger = new Model.GerenciadorSave();
+            boolean ocultarUHD = ger.carregarDadosGlobais().getConfiguracoes().isOcultarUHD();
+
+            // Só mostra o menu de "Salvar" e "Status" se o UHD NÃO estiver oculto!
+            if (!ocultarUHD) {
+                System.out.println("-1 - [Salvar Jogo]");
+                System.out.println("0 - [Abrir Status e Inventário]");
+            }
+
             for (int i = 0; i < escolhas.size(); i++) {
                 System.out.println((i + 1) + " - " + escolhas.get(i).getTexto());
             }

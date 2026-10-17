@@ -14,54 +14,27 @@ public class MenuSaveCarregarController {
     public void processamentoSlot(int opcao){
         switch (opcao){
 
-            case 1->{
+            case 1, 2, 3 -> {
                 try {
                     GerenciadorSave gerenciador = new GerenciadorSave();
-                    SalvarDados dados = gerenciador.carregar(1);
+                    // O método carregar agora usa a variável 'opcao' (1, 2 ou 3)
+                    SalvarDados dados = gerenciador.carregar(opcao);
 
-                    System.out.println("Save encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
+                    System.out.println("\nSave encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
 
-                    cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
+                    cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual(), opcao);
                     cenasController.jogar();
 
-                } catch (Exception e) {
-                    System.out.println("\nNenhum progresso encontrado neste slot.\n");
+                } catch (FalhaCarregamentoException e) {
+                    // Captura arquivo ausente ou falha de leitura
+                    System.out.println("\n[Aviso] " + e.getMessage() + "\n");
+                } catch (DadosInvalidosException e) {
+                    // Captura JSON quebrado ou dados faltando
+                    System.out.println("\n[Erro Crítico] " + e.getMessage() + "\n");
                 }
             }
 
-            case 2->{
-                try {
-                    GerenciadorSave gerenciador = new GerenciadorSave();
-                    SalvarDados dados = gerenciador.carregar(2);
-
-                    System.out.println("Save encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
-
-                    cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
-                    cenasController.jogar();
-
-                } catch (Exception e) {
-                    System.out.println("\nNenhum progresso encontrado neste slot.\n");
-                }
-
-            }
-
-            case 3->{
-                try {
-                    GerenciadorSave gerenciador = new GerenciadorSave();
-                    SalvarDados dados = gerenciador.carregar(3);
-
-                    System.out.println("Save encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
-
-                    cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual());
-                    cenasController.jogar();
-
-                } catch (Exception e) {
-                    System.out.println("\nNenhum progresso encontrado neste slot.\n");
-                }
-
-            }
-
-            case 4->{
+            case 4 -> {
                 // 1. Prepara o estado inicial do jogo
                 // Cria a central que guarda todas as informações da partida (personagem, banda, etc.)
                 IntegracaoJogo jogo = new IntegracaoJogo();
@@ -78,12 +51,12 @@ public class MenuSaveCarregarController {
                 // 3. Prepara o "motor" da história
                 RepositorioCenas repositorio = new RepositorioCenas(); // Cria o "livro" que contém todas as cenas
                 // Cria o controlador que vai virar as páginas da história e aplicar as escolhas
-                CenasController cenasController = new CenasController(repositorio, c1, jogo);
+                CenasController cenasControllerNovo = new CenasController(repositorio, c1, jogo);
 
                 // 4. Prepara o menu do jogo
                 // Cria o controlador do menu, entregando para ele o controle do personagem e das cenas
                 // (Isso permite que o menu consiga iniciar a história quando o jogador apertar '1')
-                MenuController menuController = new MenuController(personagemController, cenasController);
+                MenuController menuController = new MenuController(personagemController, cenasControllerNovo);
 
                 // 5. Dá a partida
                 MenuView menuView = new MenuView(); // Cria a tela visual do menu
@@ -95,10 +68,5 @@ public class MenuSaveCarregarController {
                 System.out.println("Opção inválida! Escolha uma opção válida."); // Mostra um aviso
             }
         }
-
-
     }
-
-
-
 }

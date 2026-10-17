@@ -579,25 +579,25 @@ public class JogoTest {
         }
 
         @Test
-        @DisplayName("Opção 2 exibe as instruções do jogo")
+        @DisplayName("Opção 3 exibe as instruções do jogo")
         void opcaoInstrucoes() {
-            simularEntrada(""); // não deve precisar ler nada
+            simularEntrada("0\n"); // Envia um input para fechar/continuar a tela
             MenuController menu = criarMenuControllerDummy();
 
             ByteArrayOutputStream saida = capturarSaida();
-            menu.processamentoOpcao(2);
+            menu.processamentoOpcao(3);
 
             assertTrue(saida.toString(StandardCharsets.UTF_8).contains("O Show Tem de Continuar"));
         }
 
         @Test
-        @DisplayName("Opção 4 exibe os créditos")
+        @DisplayName("Opção 6 exibe os créditos")
         void opcaoCreditos() {
-            simularEntrada("");
+            simularEntrada("0\n"); // Envia um input para o menu fechar após ler
             MenuController menu = criarMenuControllerDummy();
 
             ByteArrayOutputStream saida = capturarSaida();
-            menu.processamentoOpcao(4);
+            menu.processamentoOpcao(6);
 
             String textoSaida = saida.toString(StandardCharsets.UTF_8);
             assertTrue(textoSaida.contains("Créditos"));
@@ -606,13 +606,13 @@ public class JogoTest {
         }
 
         @Test
-        @DisplayName("Opção 5 exibe a mensagem de saída")
+        @DisplayName("Opção 7 exibe a mensagem de saída")
         void opcaoSaida() {
             simularEntrada("");
             MenuController menu = criarMenuControllerDummy();
 
             ByteArrayOutputStream saida = capturarSaida();
-            menu.processamentoOpcao(5);
+            menu.processamentoOpcao(7);
 
             assertTrue(saida.toString(StandardCharsets.UTF_8).contains("Jogo encerrado!"));
         }
@@ -654,6 +654,371 @@ public class JogoTest {
             assertEquals(-20, jogo.getBanda().getEssencia());
             assertTrue(jogo.getInventario().temItem("Cartão da Manuela"));
             assertEquals(CenasIds.CAP6_ESCRITORIO, aceitarPop.getDestino(jogo));
+        }
+    }
+
+    // =================================================================
+    // TESTES DE Configuracoes (FASE 2)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes da classe Configuracoes (Fase 2)")
+    class ConfiguracoesTests {
+
+        @Test
+        @DisplayName("Configurações nascem com os valores padrão corretos")
+        void configuracoesPadrao() {
+            Configuracoes config = new Configuracoes();
+
+            assertEquals(1, config.getTemaVisual());
+            assertEquals("Branco", config.getCorLetras());
+            assertFalse(config.isOcultarUHD());
+        }
+
+        @Test
+        @DisplayName("Alteração de configurações atualiza os atributos corretamente")
+        void alterarConfiguracoes() {
+            Configuracoes config = new Configuracoes();
+
+            config.setTemaVisual(2);
+            config.setCorLetras("Verde");
+            config.setOcultarUHD(true);
+
+            assertEquals(2, config.getTemaVisual());
+            assertEquals("Verde", config.getCorLetras());
+            assertTrue(config.isOcultarUHD());
+        }
+    }
+
+    // =================================================================
+    // TESTES DE DadosGlobais (FASE 2)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes da classe DadosGlobais e Registro de Finais (Fase 2)")
+    class DadosGlobaisTests {
+
+        @Test
+        @DisplayName("Adicionar um final legítimo conta para o desbloqueio")
+        void adicionarFinalLegitimo() {
+            DadosGlobais globais = new DadosGlobais();
+            globais.adicionarFinal(CenasIds.CAP10_FINAL_FALSO.name());
+
+            assertTrue(globais.getFinaisAlcancados().contains("CAP10_FINAL_FALSO"));
+            assertFalse(globais.isCenaSecretaDesbloqueada());
+        }
+
+        @Test
+        @DisplayName("Adicionar Game Over é registrado, mas não desbloqueia o Epílogo")
+        void adicionarGameOverNaoDesbloqueia() {
+            DadosGlobais globais = new DadosGlobais();
+            globais.adicionarFinal("GAMEOVER_HARMONIA");
+            globais.adicionarFinal("GAMEOVER_DINHEIRO");
+            globais.adicionarFinal("GAMEOVER_ESTREIA");
+
+            assertEquals(3, globais.getFinaisAlcancados().size());
+            assertFalse(globais.isCenaSecretaDesbloqueada());
+        }
+
+        @Test
+        @DisplayName("Alcançar 3 finais legítimos desbloqueia a cena secreta")
+        void desbloquearCenaSecreta() {
+            DadosGlobais globais = new DadosGlobais();
+            globais.adicionarFinal(CenasIds.CAP10_FINAL_FALSO.name());
+            globais.adicionarFinal(CenasIds.CAP10_FINAL_ESSENCIALISTA.name());
+            globais.adicionarFinal(CenasIds.CAP10_FINAL_HARMONIOSO.name());
+
+            assertTrue(globais.isCenaSecretaDesbloqueada());
+        }
+
+        @Test
+        @DisplayName("Finais duplicados não são adicionados duas vezes")
+        void finaisDuplicadosIgnorados() {
+            DadosGlobais globais = new DadosGlobais();
+            globais.adicionarFinal(CenasIds.CAP10_FINAL_FALSO.name());
+            globais.adicionarFinal(CenasIds.CAP10_FINAL_FALSO.name());
+
+            assertEquals(1, globais.getFinaisAlcancados().size());
+        }
+    }
+
+    // =================================================================
+    // TESTES DE GerenciadorSave E EXCEÇÕES PERSONALIZADAS (FASE 2)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes do GerenciadorSave e Exceções (Fase 2)")
+    class GerenciadorSaveTests {
+
+        private GerenciadorSave gerenciador;
+        private final int SLOT_TESTE = 3;
+
+        @BeforeEach
+        void setUp() {
+            gerenciador = new GerenciadorSave();
+            gerenciador.deletar(SLOT_TESTE);
+        }
+
+        @AfterEach
+        void tearDown() {
+            gerenciador.deletar(SLOT_TESTE);
+            java.io.File globais = new java.io.File("dados_globais_teste.json");
+            if (globais.exists()) globais.delete();
+        }
+
+        @Test
+        @DisplayName("Carregar de um slot vazio ou inexistente lança FalhaCarregamentoException")
+        void carregarSlotVazioLancaExcecao() {
+            assertThrows(FalhaCarregamentoException.class, () -> {
+                gerenciador.carregar(SLOT_TESTE);
+            });
+        }
+
+        @Test
+        @DisplayName("Salvar dados nulos lança FalhaSalvamentoException")
+        void salvarDadosNulosLancaExcecao() {
+            assertThrows(FalhaSalvamentoException.class, () -> {
+                gerenciador.salvar(null, SLOT_TESTE);
+            });
+        }
+
+        @Test
+        @DisplayName("Ler arquivo JSON corrompido lança DadosInvalidosException")
+        void lerJsonCorrompidoLancaExcecao() throws Exception {
+            try (java.io.FileWriter writer = new java.io.FileWriter("save_slot_" + SLOT_TESTE + ".json")) {
+                writer.write("{ nomeJogador: Toin, estadoJogo: { }");
+            }
+
+            assertThrows(DadosInvalidosException.class, () -> {
+                gerenciador.carregar(SLOT_TESTE);
+            });
+        }
+
+        @Test
+        @DisplayName("Ler JSON válido mas faltando atributos obrigatórios lança DadosInvalidosException")
+        void lerJsonIncompletoLancaExcecao() throws Exception {
+            try (java.io.FileWriter writer = new java.io.FileWriter("save_slot_" + SLOT_TESTE + ".json")) {
+                writer.write("{\n\"idCenaAtual\": \"CAP1_BAR\"\n}");
+            }
+
+            assertThrows(DadosInvalidosException.class, () -> {
+                gerenciador.carregar(SLOT_TESTE);
+            });
+        }
+
+        @Test
+        @DisplayName("Salvar e carregar dados globais funciona corretamente")
+        void persistenciaDadosGlobais() throws Exception {
+            DadosGlobais globais = new DadosGlobais();
+            globais.getConfiguracoes().setCorLetras("Azul");
+            globais.adicionarFinal("CAP10_TESTE");
+
+            gerenciador.salvarDadosGlobais(globais);
+
+            DadosGlobais globaisCarregados = gerenciador.carregarDadosGlobais();
+
+            assertEquals("Azul", globaisCarregados.getConfiguracoes().getCorLetras());
+            assertTrue(globaisCarregados.getFinaisAlcancados().contains("CAP10_TESTE"));
+        }
+
+        @Test
+        @DisplayName("Deletar save apaga o arquivo físico e retorna true")
+        void deletarSaveFunciona() throws Exception {
+            try (java.io.FileWriter writer = new java.io.FileWriter("save_slot_" + SLOT_TESTE + ".json")) {
+                writer.write("{\"nomeJogador\":\"Teste\"}");
+            }
+
+            assertTrue(gerenciador.slotTemSave(SLOT_TESTE));
+
+            boolean deletado = gerenciador.deletar(SLOT_TESTE);
+
+            assertTrue(deletado);
+            assertFalse(gerenciador.slotTemSave(SLOT_TESTE));
+        }
+    }
+
+    // =================================================================
+    // TESTES DO DTO SalvarDados (FASE 2 - Metadados e Mapeamento)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes da classe SalvarDados (Fase 2)")
+    class SalvarDadosTests {
+
+        @Test
+        @DisplayName("SalvarDados captura corretamente o nome do jogador e os dados do estado do jogo")
+        void mapeamentoDeDadosCorreto() {
+            IntegracaoJogo jogo = new IntegracaoJogo();
+            // Como o nome é fixo, não tentamos usar setNome() aqui!
+            jogo.getBanda().adicionarGrana(500);
+
+            // Passamos o nome fixo "Toin" para o save
+            SalvarDados dados = new SalvarDados("Toin", "Capítulo 5", "Resumo da partida", jogo, CenasIds.CAP5_PRACA);
+
+            // Testamos se o nome guardado foi mesmo o "Toin"
+            assertEquals("Toin", dados.getNomeJogador(), "O nome do jogador deve ser extraído corretamente.");
+            assertEquals(CenasIds.CAP5_PRACA, dados.getIdCenaAtual(), "A cena atual deve ser salva.");
+            assertNotNull(dados.getDataHora(), "A data e hora do save não pode ser nula.");
+            assertEquals(500, dados.getEstadoJogo().getBanda().getGrana(), "O estado da banda deve ser espelhado no save.");
+        }
+    }
+
+    // =================================================================
+    // TESTES AVANÇADOS DE GerenciadorSave (FASE 2 - Lógica de Slots)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes Avançados de Manipulação de Slots - GerenciadorSave (Fase 2)")
+    class GerenciadorSaveAvancadoTests {
+
+        private GerenciadorSave gerenciador;
+
+        @BeforeEach
+        void setUp() {
+            gerenciador = new GerenciadorSave();
+            gerenciador.deletar(1);
+            gerenciador.deletar(2);
+            gerenciador.deletar(3);
+        }
+
+        @AfterEach
+        void tearDown() {
+            gerenciador.deletar(1);
+            gerenciador.deletar(2);
+            gerenciador.deletar(3);
+        }
+
+        @Test
+        @DisplayName("slotMaisAntigo retorna o arquivo modificado há mais tempo")
+        void slotMaisAntigoLogicaDatas() throws Exception {
+            IntegracaoJogo jogo = new IntegracaoJogo();
+            SalvarDados dummy = new SalvarDados("Toin", "Capítulo 1", "Início", jogo, CenasIds.CAP1_BAR);
+            gerenciador.salvar(dummy, 1);
+            gerenciador.salvar(dummy, 2);
+            gerenciador.salvar(dummy, 3);
+
+            java.io.File f1 = new java.io.File("save_slot_1.json");
+            java.io.File f2 = new java.io.File("save_slot_2.json");
+            java.io.File f3 = new java.io.File("save_slot_3.json");
+
+            long tempoAtual = System.currentTimeMillis();
+            f1.setLastModified(tempoAtual - 50000);
+            f2.setLastModified(tempoAtual - 100000); // Mais antigo
+            f3.setLastModified(tempoAtual - 10000);
+
+            assertEquals(2, gerenciador.slotMaisAntigo(), "O slot 2 deve ser identificado como o mais antigo.");
+        }
+
+        @Test
+        @DisplayName("slotMaisRecente retorna o arquivo salvo por último")
+        void slotMaisRecenteLogicaDatas() throws Exception {
+            IntegracaoJogo jogo = new IntegracaoJogo();
+            SalvarDados dummy = new SalvarDados("Toin", "Capítulo 1", "Início", jogo, CenasIds.CAP1_BAR);
+            gerenciador.salvar(dummy, 1);
+            gerenciador.salvar(dummy, 2);
+
+            java.io.File f1 = new java.io.File("save_slot_1.json");
+            java.io.File f2 = new java.io.File("save_slot_2.json");
+
+            long tempoAtual = System.currentTimeMillis();
+            f1.setLastModified(tempoAtual - 50000);
+            f2.setLastModified(tempoAtual - 10000); // Mais recente
+
+            assertEquals(2, gerenciador.slotMaisRecente(), "O slot 2 deve ser identificado como o mais recente.");
+        }
+
+        @Test
+        @DisplayName("slotMaisRecente retorna -1 se não houver nenhum save")
+        void slotMaisRecenteSemSaves() {
+            assertEquals(-1, gerenciador.slotMaisRecente(), "Deve retornar -1 quando todos os slots estão vazios.");
+        }
+    }
+
+    // =================================================================
+    // TESTES DE EstiloVisual (FASE 2 - Configurações Persistentes ANSI)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes da classe EstiloVisual (Fase 2)")
+    class EstiloVisualTests {
+
+        private GerenciadorSave ger;
+
+        @BeforeEach
+        void setUp() {
+            ger = new GerenciadorSave();
+        }
+
+        @AfterEach
+        void tearDown() {
+            java.io.File arquivo = new java.io.File("dados_globais.json");
+            if (arquivo.exists()) arquivo.delete();
+        }
+
+        @Test
+        @DisplayName("aplicarEstilo injeta códigos ANSI corretos para Modo Escuro e Letra Verde")
+        void aplicarEstiloEscuroVerde() throws FalhaSalvamentoException {
+            DadosGlobais globais = new DadosGlobais();
+            globais.getConfiguracoes().setTemaVisual(2);
+            globais.getConfiguracoes().setCorLetras("Verde");
+            ger.salvarDadosGlobais(globais);
+
+            ByteArrayOutputStream saida = capturarSaida();
+            View.EstiloVisual.aplicarEstilo();
+
+            String output = saida.toString(StandardCharsets.UTF_8);
+            assertTrue(output.contains(View.EstiloVisual.FUNDO_ESCURO), "Deve conter o fundo escuro");
+            assertTrue(output.contains(View.EstiloVisual.LETRA_VERDE), "Deve conter a letra verde");
+        }
+
+        @Test
+        @DisplayName("aplicarEstilo força letra preta se tema for claro e letra for branca (Proteção de Acessibilidade)")
+        void aplicarEstiloClaroBrancoForcaPreto() throws FalhaSalvamentoException {
+            DadosGlobais globais = new DadosGlobais();
+            globais.getConfiguracoes().setTemaVisual(3);
+            globais.getConfiguracoes().setCorLetras("Branco");
+            ger.salvarDadosGlobais(globais);
+
+            ByteArrayOutputStream saida = capturarSaida();
+            View.EstiloVisual.aplicarEstilo();
+
+            String output = saida.toString(StandardCharsets.UTF_8);
+            assertTrue(output.contains(View.EstiloVisual.FUNDO_CLARO), "Deve conter o fundo claro");
+            assertTrue(output.contains(View.EstiloVisual.LETRA_PRETA_FORCADA), "Deve forçar a letra preta para dar leitura");
+            assertFalse(output.contains(View.EstiloVisual.LETRA_BRANCA), "Não deve usar letra branca no fundo branco");
+        }
+
+        @Test
+        @DisplayName("limparEstilo reseta o terminal")
+        void limparEstiloResetaTerminal() {
+            ByteArrayOutputStream saida = capturarSaida();
+            View.EstiloVisual.limparEstilo();
+
+            String output = saida.toString(StandardCharsets.UTF_8);
+            assertEquals(View.EstiloVisual.RESET, output, "Deve imprimir apenas o código de reset ANSI");
+        }
+    }
+
+    // =================================================================
+    // TESTES DE MenuDeletarController (FASE 2)
+    // =================================================================
+    @Nested
+    @DisplayName("Testes de Deleção de Saves (Fase 2)")
+    class MenuDeletarTests {
+
+        @Test
+        @DisplayName("Opções de 1 a 3 no Menu Deletar tentam apagar o slot correspondente")
+        void menuDeletaSlotCorreto() throws Exception {
+            GerenciadorSave ger = new GerenciadorSave();
+            ger.salvar(new SalvarDados("Toin", "Capítulo 1", "Início", new IntegracaoJogo(), CenasIds.CAP1_BAR), 1);
+
+            assertTrue(ger.slotTemSave(1), "O slot 1 deve ter um save antes da deleção");
+
+            // A MÁGICA ACONTECE AQUI:
+            // 1º Passo: Preparamos o teclado simulado PRIMEIRO (vários '1' garantem que ele confirma o Sim)
+            simularEntrada("1\n1\n1\n");
+
+            // 2º Passo: AGORA criamos a View. Assim o Scanner dela vai ler as teclas simuladas que preparámos acima!
+            Control.MenuDeletarController deletarController = new Control.MenuDeletarController(ger, new View.MenuDeletarView());
+
+            ByteArrayOutputStream saida = capturarSaida();
+            deletarController.processamentoSlot(1);
+
+            assertFalse(ger.slotTemSave(1), "O slot 1 deve estar vazio após a deleção");
         }
     }
 }
