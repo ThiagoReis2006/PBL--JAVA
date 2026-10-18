@@ -34,9 +34,13 @@ public class MenuDeletarController {
         // Mostra as informações padrão do save antes de confirmar
         try {
             SalvarDados dados = gerenciador.carregar(slot);
-            System.out.println("\nSave encontrado no Slot " + slot + "!"
-                    + " Jogador: " + dados.getNomeJogador()
-                    + " | Data: " + dados.getDataHora() + "\n");
+            System.out.println("\n-----------------------------------------");
+            System.out.println("Save encontrado no Slot " + slot + "!");
+            System.out.println("Jogador: " + dados.getNomeJogador());
+            System.out.println("Capítulo: " + dados.getNomeCapitulo());
+            System.out.println("Progresso: " + dados.getResumoProgressao());
+            System.out.println("Data: " + dados.getDataHora());
+            System.out.println("-----------------------------------------");
         } catch (Exception e) {
             System.out.println("\nNão foi possível ler as informações do Slot " + slot + ".\n");
         }

@@ -20,7 +20,13 @@ public class MenuSaveCarregarController {
                     // O método carregar agora usa a variável 'opcao' (1, 2 ou 3)
                     SalvarDados dados = gerenciador.carregar(opcao);
 
-                    System.out.println("\nSave encontrado! Jogador: " + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
+                    System.out.println("\n=========================================");
+                    System.out.println("Save encontrado no Slot " + opcao + "!");
+                    System.out.println("Jogador: " + dados.getNomeJogador());
+                    System.out.println("Capítulo: " + dados.getNomeCapitulo());
+                    System.out.println("Progresso: " + dados.getResumoProgressao());
+                    System.out.println("Data: " + dados.getDataHora());
+                    System.out.println("=========================================\n");
 
                     cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual(), opcao);
                     cenasController.jogar();

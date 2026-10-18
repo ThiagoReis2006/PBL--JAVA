@@ -33,6 +33,7 @@ public class MenuController {
                 cenasController.jogar();          // Começa a passar as cenas do jogo
             }
 
+            // Opção 2: Continuar partida
             case 2 -> {
                 try {
                     GerenciadorSave gerenciador = new GerenciadorSave();
@@ -43,8 +44,14 @@ public class MenuController {
                     } else {
                         SalvarDados dados = gerenciador.carregar(slot);
 
-                        System.out.println("Save encontrado no slot " + slot + "! Jogador: "
-                                + dados.getNomeJogador() + " | Data: " + dados.getDataHora());
+                        // === NOVA EXIBIÇÃO ELEGANTE COM CAPÍTULO E RESUMO ===
+                        System.out.println("\n=========================================");
+                        System.out.println("Continuando partida a partir do Slot " + slot + "!");
+                        System.out.println("Jogador: " + dados.getNomeJogador());
+                        System.out.println("Capítulo: " + dados.getNomeCapitulo());
+                        System.out.println("Progresso: " + dados.getResumoProgressao());
+                        System.out.println("Data: " + dados.getDataHora());
+                        System.out.println("=========================================\n");
 
                         cenasController.setJogoCarregado(dados.getEstadoJogo(), dados.getIdCenaAtual(), slot);
                         cenasController.jogar();

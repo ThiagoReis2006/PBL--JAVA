@@ -51,13 +51,21 @@ public class CenasController {
                 this.slotAtual = slotDestino;
             }
 
+
+            String capituloAtual = atual.name();
+
+            String resumo = "Harmonia: " + jogo.getBanda().getHarmonia() +
+                    " | Grana: R$ " + jogo.getBanda().getGrana() +
+                    " | Essência: " + jogo.getBanda().getEssencia();
+
             SalvarDados dadosDoSave = new SalvarDados(
                     "Toin",
-                    atual.name(),
-                    "Progresso salvo.",
+                    capituloAtual,
+                    resumo,
                     this.jogo,
                     this.atual
             );
+
             gerenciador.salvar(dadosDoSave, slotDestino);
             System.out.println("\nJogo salvo no slot " + slotDestino + "!\n");
 
