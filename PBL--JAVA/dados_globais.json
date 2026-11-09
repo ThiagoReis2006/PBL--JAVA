@@ -1,0 +1,11 @@
+{
+  "configuracoes": {
+    "ocultarUHD": false,
+    "temaVisual": 1,
+    "corLetras": "Azul"
+  },
+  "finaisAlcancados": [
+    "CAP10_TESTE"
+  ],
+  "cenaSecretaDesbloqueada": false
+}
