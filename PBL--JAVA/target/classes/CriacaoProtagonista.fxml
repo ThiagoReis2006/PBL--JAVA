@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.GUIController.CriacaoProtagonistaController">
+    <children>
+        <Label layoutX="215.0" layoutY="45.0" text="PRÓLOGO E CRIAÇÃO DE TOIN">
+            <font>
+                <Font size="25.0" />
+            </font>
+        </Label>
+        <VBox alignment="CENTER" layoutX="80.0" layoutY="100.0" prefHeight="450.0" prefWidth="640.0" spacing="15.0">
+            <children>
+                <Label fx:id="lblPrologo" prefWidth="620.0" text="Texto do prólogo..." wrapText="true" />
+                <Label fx:id="lblPontosRestantes" text="Pontos disponíveis: 120 / 120">
+                    <font>
+                        <Font size="15.0" />
+                    </font>
+                </Label>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <children>
+                        <Label prefWidth="160.0" text="Carisma de Botequim:" />
+                        <Spinner fx:id="spnCarisma" editable="true" prefWidth="90.0" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <children>
+                        <Label prefWidth="160.0" text="Samba no Pé:" />
+                        <Spinner fx:id="spnSamba" editable="true" prefWidth="90.0" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" spacing="15.0">
+                    <children>
+                        <Label prefWidth="160.0" text="Ouvido Absoluto:" />
+                        <Spinner fx:id="spnOuvido" editable="true" prefWidth="90.0" />
+                    </children>
+                </HBox>
+                <HBox alignment="CENTER" spacing="20.0">
+                    <children>
+                        <Button fx:id="btnVoltar" mnemonicParsing="false" onAction="#acaoVoltarMenu" prefWidth="140.0" text="Voltar ao Menu" />
+                        <Button fx:id="btnIniciar" mnemonicParsing="false" onAction="#acaoIniciarAventura" prefWidth="160.0" text="Confirmar e Jogar" />
+                    </children>
+                </HBox>
+            </children>
+        </VBox>
+    </children>
+</AnchorPane>

@@ -1,19 +1,19 @@
 {
   "nomeJogador": "Toin",
-  "dataHora": "08/11/2026 21:27:31",
+  "dataHora": "15/11/2026 23:30:00",
   "nomeCapitulo": "CAP5_PRACA",
-  "resumoProgressao": "Harmonia: 25 | Grana: R$ 150.0 | Essência: 20",
+  "resumoProgressao": "Harmonia: 0 | Grana: R$ 50.00 | Essência: -20",
   "estadoJogo": {
     "protagonista": {
       "nome": "Toin",
-      "carismaDeBotequim": 40,
-      "sambaNoPe": 40,
-      "ouvidoAbsoluto": 40
+      "carismaDeBotequim": 0,
+      "sambaNoPe": 0,
+      "ouvidoAbsoluto": 0
     },
     "banda": {
-      "harmonia": 25,
-      "essencia": 20,
-      "grana": 150.0,
+      "harmonia": 0,
+      "essencia": -20,
+      "grana": 50.0,
       "aceitouAOferta": false,
       "escolheuJorge": false
     },
@@ -32,12 +32,12 @@
     "jorge": {
       "nome": "Jorge",
       "tipoRelacionamento": "Confiança",
-      "nivelRelacionamento": 50
+      "nivelRelacionamento": 25
     },
     "manuela": {
       "nome": "Manuela",
       "tipoRelacionamento": "Afinidade",
-      "nivelRelacionamento": 40
+      "nivelRelacionamento": 50
     },
     "betinho": {
       "nome": "Betinho",

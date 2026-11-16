@@ -43,6 +43,15 @@ public class MainApp extends Application {
         }
     }
 
+    public static void mostrarCriacaoProtagonista() {
+        try {
+            Parent root = FXMLLoader.load(MainApp.class.getResource("/CriacaoProtagonista.fxml"));
+            primaryStage.setScene(new Scene(root, 800, 600));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

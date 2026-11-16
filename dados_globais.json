@@ -1,8 +1,8 @@
 {
   "configuracoes": {
     "ocultarUHD": false,
-    "temaVisual": 2,
-    "corLetras": "Verde"
+    "temaVisual": 1,
+    "corLetras": "Branco"
   },
   "finaisAlcancados": [
     "CAP7_GAMEOVER_HARMONIA",
