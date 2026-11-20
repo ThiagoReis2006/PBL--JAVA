@@ -38,7 +38,6 @@ public class TelaPrincipalController {
 
     @FXML
     public void initialize() {
-        // Move o Label para ser o conteúdo direto do ScrollPane, para que o texto longo role
         if (lblTextoHistoria.getParent() instanceof Pane pai) {
             pai.getChildren().remove(lblTextoHistoria);
         }
@@ -50,7 +49,6 @@ public class TelaPrincipalController {
         scrollDialogo.setContent(lblTextoHistoria);
         scrollDialogo.setFitToWidth(true);
 
-        // Evita re-autosave ao carregar um save que já está num ponto de autosave
         ultimaCenaExibida = SessaoJogo.getInstancia().getCenaAtual();
 
         aplicarConfiguracoes();
@@ -58,12 +56,10 @@ public class TelaPrincipalController {
         exibirCenaAtual();
     }
 
-    // ------------------------- Configurações e Atalhos -------------------------
 
     private void aplicarConfiguracoes() {
         Configuracoes config = gerenciador.carregarDadosGlobais().getConfiguracoes();
 
-        // 1. Ocultar HUD (oculta Menu, Salvar e Inventário, deixando só história e escolhas)
         boolean mostrarHud = !config.isOcultarUHD();
         alterarVisibilidadeBotao(btnMenu, mostrarHud);
         alterarVisibilidadeBotao(btnSalvar, mostrarHud);
@@ -77,7 +73,6 @@ public class TelaPrincipalController {
             lblCapitulo.setManaged(mostrarHud);
         }
 
-        // 2. Tema Visual (1 = Neutro, 2 = Escuro, 3 = Claro)
         String corFundoTela;
         String corFundoCaixa;
         switch (config.getTemaVisual()) {
@@ -95,7 +90,6 @@ public class TelaPrincipalController {
             }
         }
 
-        // 3. Cor das Letras
         String corTexto = switch (config.getCorLetras()) {
             case "Verde" -> "#2ed573";
             case "Amarelo" -> "#eccc68";
@@ -139,7 +133,6 @@ public class TelaPrincipalController {
         });
     }
 
-    // ------------------------- Renderização -------------------------
 
     private void limparBotoesEscolha() {
         vboxEscolhas.getChildren().removeIf(n -> n != btnMenu && n != btnSalvar && n != btnInventario);
@@ -232,7 +225,6 @@ public class TelaPrincipalController {
         vboxEscolhas.getChildren().add(b);
     }
 
-    // ------------------------- Inventário -------------------------
 
     @FXML
     public void acaoAbrirInventario(ActionEvent event) {
@@ -246,25 +238,21 @@ public class TelaPrincipalController {
 
         StringBuilder sb = new StringBuilder();
 
-        // 1. Pilares da Banda
         sb.append("=== PILARES DA BANDA ===\n");
         sb.append("• Harmonia: ").append(jogo.getBanda().getHarmonia()).append("\n");
         sb.append("• Essência: ").append(jogo.getBanda().getEssencia()).append("\n");
         sb.append("• Grana: R$ ").append(jogo.getBanda().getGrana()).append("\n\n");
 
-        // 2. Atributos de Toin
         sb.append("=== ATRIBUTOS DE TOIN ===\n");
         sb.append("• Carisma de Botequim: ").append(toin.getCarisma()).append("\n");
         sb.append("• Samba no Pé: ").append(toin.getSamba()).append("\n");
         sb.append("• Ouvido Absoluto: ").append(toin.getOuvido()).append("\n\n");
 
-        // 3. Relacionamentos
         sb.append("=== RELACIONAMENTOS ===\n");
         sb.append("• Betinho: ").append(jogo.getBetinho().getNivelRelacionamento()).append("\n");
         sb.append("• Jorge: ").append(jogo.getJorge().getNivelRelacionamento()).append("\n");
         sb.append("• Manuela: ").append(jogo.getManuela().getNivelRelacionamento()).append("\n\n");
 
-        // 4. Itens da Mochila
         sb.append("=== MOCHILA (").append(itens.size()).append(itens.size() == 1 ? " item" : " itens").append(") ===\n");
         if (itens.isEmpty()) {
             sb.append("• Nenhum item carregado no momento.");
@@ -283,7 +271,6 @@ public class TelaPrincipalController {
         alerta.showAndWait();
     }
 
-    // ------------------------- Finais e autosave -------------------------
 
     private void registrarFinal(Cena cena) {
         DadosGlobais globais = gerenciador.carregarDadosGlobais();
@@ -351,7 +338,6 @@ public class TelaPrincipalController {
         }
     }
 
-    // ------------------------- Navegação -------------------------
 
     @FXML
     public void acaoAbrirMenu(ActionEvent event) {
