@@ -87,7 +87,7 @@ public class MenuInicialController {
 
     @FXML
     public void acaoDeletar(ActionEvent event) {
-        System.out.println("Abrindo gerenciador para deletar saves.");
+        app.MainApp.mostrarDeletarSaves();
     }
 
     @FXML
@@ -156,8 +156,7 @@ public class MenuInicialController {
         dialog.setTitle("Configurações");
         dialog.setHeaderText("Preferências do Jogo (Salvas Automaticamente)");
 
-        CheckBox chkOcultarHud = new CheckBox("Ocultar HUD (Botões extras durante a partida)");
-        chkOcultarHud.setSelected(config.isOcultarUHD());
+        CheckBox chkOcultarHud = new CheckBox("Ocultar HUD (Atalhos: I Inventário | Ctrl+S Salvar | ESC Menu)");        chkOcultarHud.setSelected(config.isOcultarUHD());
 
         ComboBox<String> cbTema = new ComboBox<>();
         cbTema.getItems().addAll("1 - Neutro", "2 - Escuro", "3 - Claro");

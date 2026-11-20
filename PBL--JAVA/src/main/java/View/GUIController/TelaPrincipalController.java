@@ -5,16 +5,18 @@ import app.MainApp;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.control.Label;
-import javafx.scene.control.ScrollPane;
+import javafx.scene.control.*;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Optional;
 
 public class TelaPrincipalController {
@@ -26,6 +28,9 @@ public class TelaPrincipalController {
     @FXML private VBox vboxEscolhas;
     @FXML private Button btnMenu;
     @FXML private Button btnSalvar;
+    @FXML private Button btnInventario;
+    @FXML private ProgressBar barProgresso;
+    @FXML private Label lblCapitulo;
 
     private final RepositorioCenas repositorio = new RepositorioCenas();
     private final GerenciadorSave gerenciador = new GerenciadorSave();
@@ -47,20 +52,107 @@ public class TelaPrincipalController {
 
         // Evita re-autosave ao carregar um save que já está num ponto de autosave
         ultimaCenaExibida = SessaoJogo.getInstancia().getCenaAtual();
+
+        aplicarConfiguracoes();
+        configurarAtalhosTeclado();
         exibirCenaAtual();
     }
 
+    // ------------------------- Configurações e Atalhos -------------------------
+
+    private void aplicarConfiguracoes() {
+        Configuracoes config = gerenciador.carregarDadosGlobais().getConfiguracoes();
+
+        // 1. Ocultar HUD (oculta Menu, Salvar e Inventário, deixando só história e escolhas)
+        boolean mostrarHud = !config.isOcultarUHD();
+        alterarVisibilidadeBotao(btnMenu, mostrarHud);
+        alterarVisibilidadeBotao(btnSalvar, mostrarHud);
+        alterarVisibilidadeBotao(btnInventario, mostrarHud);
+        if (barProgresso != null) {
+            barProgresso.setVisible(mostrarHud);
+            barProgresso.setManaged(mostrarHud);
+        }
+        if (lblCapitulo != null) {
+            lblCapitulo.setVisible(mostrarHud);
+            lblCapitulo.setManaged(mostrarHud);
+        }
+
+        // 2. Tema Visual (1 = Neutro, 2 = Escuro, 3 = Claro)
+        String corFundoTela;
+        String corFundoCaixa;
+        switch (config.getTemaVisual()) {
+            case 2 -> {
+                corFundoTela = "#121212";
+                corFundoCaixa = "#1e1e1e";
+            }
+            case 3 -> {
+                corFundoTela = "#f1f2f6";
+                corFundoCaixa = "#ffffff";
+            }
+            default -> {
+                corFundoTela = "#2f3542";
+                corFundoCaixa = "#3d4452";
+            }
+        }
+
+        // 3. Cor das Letras
+        String corTexto = switch (config.getCorLetras()) {
+            case "Verde" -> "#2ed573";
+            case "Amarelo" -> "#eccc68";
+            case "Azul" -> "#70a1ff";
+            default -> (config.getTemaVisual() == 3) ? "#2f3542" : "#ffffff";
+        };
+
+        if (scrollDialogo.getParent() instanceof Pane raiz) {
+            raiz.setStyle("-fx-background-color: " + corFundoTela + ";");
+        }
+        scrollDialogo.setStyle("-fx-background: " + corFundoCaixa + "; -fx-background-color: " + corFundoCaixa + ";");
+        lblTextoHistoria.setStyle("-fx-text-fill: " + corTexto + ";");
+        if (lblCapitulo != null) {
+            lblCapitulo.setStyle("-fx-text-fill: " + corTexto + ";");
+        }
+    }
+
+    private void alterarVisibilidadeBotao(Button botao, boolean visivel) {
+        if (botao != null) {
+            botao.setVisible(visivel);
+            botao.setManaged(visivel);
+        }
+    }
+
+    private void configurarAtalhosTeclado() {
+        scrollDialogo.sceneProperty().addListener((obs, oldScene, newScene) -> {
+            if (newScene != null) {
+                newScene.addEventFilter(KeyEvent.KEY_PRESSED, event -> {
+                    if (event.getCode() == KeyCode.ESCAPE) {
+                        MainApp.mostrarMenuInicial();
+                        event.consume();
+                    } else if (event.isControlDown() && event.getCode() == KeyCode.S) {
+                        salvarJogo(false);
+                        event.consume();
+                    } else if (event.getCode() == KeyCode.I) {
+                        mostrarInventario();
+                        event.consume();
+                    }
+                });
+            }
+        });
+    }
+
     // ------------------------- Renderização -------------------------
+
+    private void limparBotoesEscolha() {
+        vboxEscolhas.getChildren().removeIf(n -> n != btnMenu && n != btnSalvar && n != btnInventario);
+    }
 
     private void exibirCenaAtual() {
         SessaoJogo sessao = SessaoJogo.getInstancia();
         Cena cena = repositorio.buscar(sessao.getCenaAtual());
 
         lblTextoHistoria.setText(cena.getTexto());
+        atualizarProgresso(cena.getId());
         scrollDialogo.setVvalue(0);
-
-        // mantém btnMenu e btnSalvar, remove os botões de escolha antigos
-        vboxEscolhas.getChildren().removeIf(n -> n != btnMenu && n != btnSalvar);
+        limparBotoesEscolha();
 
         verificarAutosave(cena);
         ultimaCenaExibida = cena.getId();
@@ -72,7 +164,6 @@ public class TelaPrincipalController {
         }
 
         if (cena.getEscolhas().isEmpty()) {
-            // cena automática: o jogador lê e clica para seguir
             CenasIds proxima = cena.destinoPadrao;
             adicionarBotao("[Continuar]", () -> {
                 sessao.setCenaAtual(proxima);
@@ -82,12 +173,54 @@ public class TelaPrincipalController {
         }
 
         for (Escolha escolha : cena.getEscolhas()) {
-            adicionarBotao(escolha.getTexto(), () -> {
-                IntegracaoJogo jogo = sessao.getJogoAtual();
-                escolha.aplicarEfeito(jogo);
-                sessao.setCenaAtual(escolha.getDestino(jogo));
-                exibirCenaAtual();
-            });
+            adicionarBotao(escolha.getTexto(), () -> processarEscolha(escolha));
+        }
+    }
+
+    private void atualizarProgresso(CenasIds id) {
+        if (barProgresso == null || lblCapitulo == null) return;
+
+        int capitulo = 1;
+        String nome = id.name();
+        if (nome.startsWith("CAP")) {
+            int fimNumero = nome.indexOf('_');
+            if (fimNumero > 3) {
+                try {
+                    capitulo = Integer.parseInt(nome.substring(3, fimNumero));
+                } catch (NumberFormatException ignored) {
+                }
+            }
+        }
+
+        double progresso = Math.min(1.0, Math.max(0.0, capitulo / 10.0));
+        barProgresso.setProgress(progresso);
+        lblCapitulo.setText("Capítulo " + capitulo + "/10");
+    }
+
+    private void processarEscolha(Escolha escolha) {
+        SessaoJogo sessao = SessaoJogo.getInstancia();
+        IntegracaoJogo jogo = sessao.getJogoAtual();
+
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+        PrintStream saidaOriginal = System.out;
+        try (PrintStream captura = new PrintStream(buffer, true, StandardCharsets.UTF_8)) {
+            System.setOut(captura);
+            escolha.aplicarEfeito(jogo);
+        } finally {
+            System.setOut(saidaOriginal);
+        }
+
+        CenasIds proximaCena = escolha.getDestino(jogo);
+        sessao.setCenaAtual(proximaCena);
+
+        String falaReacao = buffer.toString(StandardCharsets.UTF_8).trim();
+        if (!falaReacao.isEmpty()) {
+            lblTextoHistoria.setText(falaReacao);
+            scrollDialogo.setVvalue(0);
+            limparBotoesEscolha();
+            adicionarBotao("[Continuar]", this::exibirCenaAtual);
+        } else {
+            exibirCenaAtual();
         }
     }
 
@@ -97,6 +230,57 @@ public class TelaPrincipalController {
         b.setMaxWidth(Double.MAX_VALUE);
         b.setOnAction(e -> acao.run());
         vboxEscolhas.getChildren().add(b);
+    }
+
+    // ------------------------- Inventário -------------------------
+
+    @FXML
+    public void acaoAbrirInventario(ActionEvent event) {
+        mostrarInventario();
+    }
+
+    private void mostrarInventario() {
+        IntegracaoJogo jogo = SessaoJogo.getInstancia().getJogoAtual();
+        PersonagemPrincipal toin = jogo.getProtagonista();
+        List<Item> itens = jogo.getInventario().getItens();
+
+        StringBuilder sb = new StringBuilder();
+
+        // 1. Pilares da Banda
+        sb.append("=== PILARES DA BANDA ===\n");
+        sb.append("• Harmonia: ").append(jogo.getBanda().getHarmonia()).append("\n");
+        sb.append("• Essência: ").append(jogo.getBanda().getEssencia()).append("\n");
+        sb.append("• Grana: R$ ").append(jogo.getBanda().getGrana()).append("\n\n");
+
+        // 2. Atributos de Toin
+        sb.append("=== ATRIBUTOS DE TOIN ===\n");
+        sb.append("• Carisma de Botequim: ").append(toin.getCarisma()).append("\n");
+        sb.append("• Samba no Pé: ").append(toin.getSamba()).append("\n");
+        sb.append("• Ouvido Absoluto: ").append(toin.getOuvido()).append("\n\n");
+
+        // 3. Relacionamentos
+        sb.append("=== RELACIONAMENTOS ===\n");
+        sb.append("• Betinho: ").append(jogo.getBetinho().getNivelRelacionamento()).append("\n");
+        sb.append("• Jorge: ").append(jogo.getJorge().getNivelRelacionamento()).append("\n");
+        sb.append("• Manuela: ").append(jogo.getManuela().getNivelRelacionamento()).append("\n\n");
+
+        // 4. Itens da Mochila
+        sb.append("=== MOCHILA (").append(itens.size()).append(itens.size() == 1 ? " item" : " itens").append(") ===\n");
+        if (itens.isEmpty()) {
+            sb.append("• Nenhum item carregado no momento.");
+        } else {
+            for (Item item : itens) {
+                sb.append("• ").append(item.getNome()).append(": ")
+                        .append(item.getDescricao()).append("\n");
+            }
+        }
+
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setTitle("Status e Inventário");
+        alerta.setHeaderText("Ficha da Banda & Mochila de Toin");
+        alerta.setContentText(sb.toString().trim());
+        alerta.getDialogPane().setPrefWidth(500);
+        alerta.showAndWait();
     }
 
     // ------------------------- Finais e autosave -------------------------

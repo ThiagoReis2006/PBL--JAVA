@@ -48,6 +48,10 @@ public class MainApp extends Application {
         trocarTela("/CarregarJogo.fxml");
     }
 
+    public static void mostrarDeletarSaves() {
+        trocarTela("/DeletarSaves.fxml");
+    }
+
     public static void main(String[] args) {
         launch(args);
     }

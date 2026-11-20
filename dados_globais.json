@@ -1,12 +1,14 @@
 {
   "configuracoes": {
     "ocultarUHD": false,
-    "temaVisual": 1,
+    "temaVisual": 2,
     "corLetras": "Branco"
   },
   "finaisAlcancados": [
+    "CAP10_FINAL_FALSO",
+    "CAP10_FINAL_ESSENCIALISTA",
     "CAP7_GAMEOVER_HARMONIA",
-    "CAP10_FINAL_FALSO"
+    "CAP10_FINAL_HARMONIOSO"
   ],
-  "cenaSecretaDesbloqueada": false
+  "cenaSecretaDesbloqueada": true
 }
