@@ -50,7 +50,13 @@ public class MenuInicialController {
 
     @FXML
     public void acaoContinuar(ActionEvent event) {
-        System.out.println("Continuando partida anterior.");
+        int slot = new GerenciadorSave().slotMaisRecente();
+        if (slot == -1) {
+            CarregamentoHelper.alerta(Alert.AlertType.INFORMATION,
+                    "Continuar Partida", "Nenhum progresso encontrado.");
+            return;
+        }
+        CarregamentoHelper.carregarSlotEIniciar(slot);
     }
 
     @FXML
@@ -76,7 +82,7 @@ public class MenuInicialController {
 
     @FXML
     public void acaoCarregar(ActionEvent event) {
-        System.out.println("Abrindo gerenciador de saves.");
+        app.MainApp.mostrarCarregarJogo();
     }
 
     @FXML

@@ -23,33 +23,29 @@ public class MainApp extends Application {
         primaryStage.show();
     }
 
-    // Método para carregar a tela do menu.
-    public static void mostrarMenuInicial() {
+    private static void trocarTela(String caminhoFxml) {
         try {
-            Parent root = FXMLLoader.load(MainApp.class.getResource("/MenuInicial.fxml"));
+            Parent root = FXMLLoader.load(MainApp.class.getResource(caminhoFxml));
             primaryStage.setScene(new Scene(root, 800, 600));
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Falha ao carregar FXML: " + caminhoFxml, e);
         }
     }
 
-    // Método para carregar a tela principal (cena default).
+    public static void mostrarMenuInicial() {
+        trocarTela("/MenuInicial.fxml");
+    }
+
     public static void mostrarTelaPrincipal() {
-        try {
-            Parent root = FXMLLoader.load(MainApp.class.getResource("/TelaPrincipal.fxml"));
-            primaryStage.setScene(new Scene(root, 800, 600));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        trocarTela("/TelaPrincipal.fxml");
     }
 
     public static void mostrarCriacaoProtagonista() {
-        try {
-            Parent root = FXMLLoader.load(MainApp.class.getResource("/CriacaoProtagonista.fxml"));
-            primaryStage.setScene(new Scene(root, 800, 600));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        trocarTela("/CriacaoProtagonista.fxml");
+    }
+
+    public static void mostrarCarregarJogo() {
+        trocarTela("/CarregarJogo.fxml");
     }
 
     public static void main(String[] args) {
