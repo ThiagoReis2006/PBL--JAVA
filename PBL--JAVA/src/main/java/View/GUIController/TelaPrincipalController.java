@@ -6,6 +6,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -15,15 +16,13 @@ import javafx.scene.layout.VBox;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
-import java.nio.charset.StandardCharsets;
-import java.util.List;
-import java.util.Optional;
-import java.util.Locale;
-
-import javafx.scene.image.Image;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 
 public class TelaPrincipalController {
 
@@ -62,7 +61,6 @@ public class TelaPrincipalController {
         exibirCenaAtual();
     }
 
-
     private void aplicarConfiguracoes() {
         Configuracoes config = gerenciador.carregarDadosGlobais().getConfiguracoes();
 
@@ -79,7 +77,6 @@ public class TelaPrincipalController {
             lblCapitulo.setManaged(mostrarHud);
         }
 
-        // O visual vem de css/tema.css; aqui so escolhemos o tema e a cor das letras.
         if (scrollDialogo.getParent() instanceof Pane raiz) {
             raiz.getStyleClass().removeIf(c -> c.startsWith("tema-") || c.startsWith("letra-"));
             raiz.getStyleClass().add("tema-" + config.getTemaVisual());
@@ -92,8 +89,6 @@ public class TelaPrincipalController {
         scrollDialogo.getStyleClass().add("caixa-dialogo");
         lblTextoHistoria.getStyleClass().add("label-historia");
     }
-
-
 
     private void alterarVisibilidadeBotao(Button botao, boolean visivel) {
         if (botao != null) {
@@ -121,7 +116,6 @@ public class TelaPrincipalController {
         });
     }
 
-
     private void limparBotoesEscolha() {
         vboxEscolhas.getChildren().removeIf(n -> n != btnMenu && n != btnSalvar && n != btnInventario);
     }
@@ -132,10 +126,7 @@ public class TelaPrincipalController {
 
         lblTextoHistoria.setText(cena.getTexto());
         atualizarProgresso(cena.getId());
-        lblTextoHistoria.setText(cena.getTexto());
-        atualizarProgresso(cena.getId());
         atualizarCenario(cena.getId());
-        scrollDialogo.setVvalue(0);
         scrollDialogo.setVvalue(0);
         limparBotoesEscolha();
 
@@ -193,7 +184,6 @@ public class TelaPrincipalController {
         imgCenario.setImage(buscarCenario(id));
     }
 
-    /** Procura cap7_estudio_garagem_aceitou -> cap7_estudio_garagem -> cap7 -> padrao. */
     private static Image buscarCenario(CenasIds id) {
         String nome = id.name().toLowerCase(Locale.ROOT);
         while (true) {
@@ -209,13 +199,12 @@ public class TelaPrincipalController {
             Image img = carregarImagem("/img/cenarios/padrao" + ext);
             if (img != null) return img;
         }
-        return null; // sem imagem: fica so o fundo do tema
+        return null;
     }
 
     private static Image carregarImagem(String caminho) {
         if (CACHE_CENARIOS.containsKey(caminho)) return CACHE_CENARIOS.get(caminho);
         URL url = TelaPrincipalController.class.getResource(caminho);
-        // 800x600, sem manter proporcao, com suavizacao: poupa memoria com imagens grandes
         Image img = (url == null) ? null : new Image(url.toExternalForm(), 800, 600, false, true);
         CACHE_CENARIOS.put(caminho, img);
         return img;
@@ -252,12 +241,10 @@ public class TelaPrincipalController {
         Button b = new Button(texto);
         b.getStyleClass().add("botao-escolha");
         b.setWrapText(true);
-        b.setWrapText(true);
         b.setMaxWidth(Double.MAX_VALUE);
         b.setOnAction(e -> acao.run());
         vboxEscolhas.getChildren().add(b);
     }
-
 
     @FXML
     public void acaoAbrirInventario(ActionEvent event) {
@@ -296,14 +283,28 @@ public class TelaPrincipalController {
             }
         }
 
+        double largura = 520;
         Alert alerta = new Alert(Alert.AlertType.INFORMATION);
         alerta.setTitle("Status e Inventário");
         alerta.setHeaderText("Ficha da Banda & Mochila de Toin");
-        alerta.setContentText(sb.toString().trim());
-        alerta.getDialogPane().setPrefWidth(500);
+
+        Label lblConteudo = new Label(sb.toString().trim());
+        lblConteudo.setWrapText(true);
+        lblConteudo.setMinHeight(Region.USE_PREF_SIZE);
+        lblConteudo.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        lblConteudo.setMaxWidth(largura - 40);
+
+        ScrollPane scroll = new ScrollPane(lblConteudo);
+        scroll.setFitToWidth(true);
+        scroll.setPrefViewportWidth(largura - 30);
+        scroll.setPrefViewportHeight(320);
+        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        alerta.getDialogPane().setContent(scroll);
+        alerta.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alerta.getDialogPane().setPrefWidth(largura);
         alerta.showAndWait();
     }
-
 
     private void registrarFinal(Cena cena) {
         DadosGlobais globais = gerenciador.carregarDadosGlobais();
@@ -370,7 +371,6 @@ public class TelaPrincipalController {
             CarregamentoHelper.alerta(Alert.AlertType.ERROR, "Falha ao salvar", e.getMessage());
         }
     }
-
 
     @FXML
     public void acaoAbrirMenu(ActionEvent event) {

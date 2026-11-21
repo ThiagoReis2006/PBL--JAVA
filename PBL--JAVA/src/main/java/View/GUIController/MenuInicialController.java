@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.*;
+import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.util.List;
@@ -42,6 +43,29 @@ public class MenuInicialController {
         }
     }
 
+    private void exibirAlertaRolavel(Alert.AlertType tipo, String titulo, String cabecalho, String texto, double largura) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(cabecalho);
+
+        Label lblTexto = new Label(texto);
+        lblTexto.setWrapText(true);
+        lblTexto.setMinHeight(Region.USE_PREF_SIZE);
+        lblTexto.setPrefHeight(Region.USE_COMPUTED_SIZE);
+        lblTexto.setMaxWidth(largura - 40);
+
+        ScrollPane scroll = new ScrollPane(lblTexto);
+        scroll.setFitToWidth(true);
+        scroll.setPrefViewportWidth(largura - 30);
+        scroll.setPrefViewportHeight(280);
+        scroll.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
+
+        alerta.getDialogPane().setContent(scroll);
+        alerta.getDialogPane().setMinHeight(Region.USE_PREF_SIZE);
+        alerta.getDialogPane().setPrefWidth(largura);
+        alerta.showAndWait();
+    }
+
     @FXML
     public void acaoNovaPartida(ActionEvent event) {
         System.out.println("Iniciando nova partida.");
@@ -72,12 +96,13 @@ public class MenuInicialController {
                 "serão testadas automaticamente durante as apresentações e conflitos da história. Administre bem a sua Grana para não cair nas garras de agiotas e " +
                 "pense com cuidado antes de cada escolha: a fama e o respeito da comunidade dependem da sua capacidade de equilibrar a razão, o coração e o samba no pé.";
 
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle("Instruções");
-        alerta.setHeaderText("Como Jogar - O Show Tem de Continuar");
-        alerta.setContentText(instrucoes);
-        alerta.getDialogPane().setPrefWidth(520);
-        alerta.showAndWait();
+        exibirAlertaRolavel(
+                Alert.AlertType.INFORMATION,
+                "Instruções",
+                "Como Jogar - O Show Tem de Continuar",
+                instrucoes,
+                540
+        );
     }
 
     @FXML
@@ -110,19 +135,21 @@ public class MenuInicialController {
         GerenciadorSave ger = new GerenciadorSave();
         DadosGlobais globais = ger.carregarDadosGlobais();
 
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle("Finais e Conteúdo Extra");
-
         if (globais.isCenaSecretaDesbloqueada()) {
-            alerta.setHeaderText("EPÍLOGO SECRETO: 5 ANOS DEPOIS");
-            alerta.setContentText(
-                    "O tempo passou, mas algumas coisas nunca mudam. Independentemente de terem assinado com a " +
-                            "gravadora gigante ou ficado no circuito independente, hoje é o aniversário de fundação da banda.\n\n" +
-                            "O bar da Dona Gertrudes está de portas fechadas para o público geral, reservado apenas para vocês. " +
-                            "Léo tenta (sem sucesso) ensinar passos de dança para Jorge, enquanto Betinho e Manuela conferem os lucros " +
-                            "da última turnê. Toin senta num canto, afina o mesmo cavaquinho que trouxe de Feira de Santana, e sorri. " +
-                            "O show continua, e a família está completa.\n\n" +
-                            "Obrigado por jogar 'O Show Tem de Continuar' e descobrir todos os finais!"
+            String epilogo = "O tempo passou, mas algumas coisas nunca mudam. Independentemente de terem assinado com a " +
+                    "gravadora gigante ou ficado no circuito independente, hoje é o aniversário de fundação da banda.\n\n" +
+                    "O bar da Dona Gertrudes está de portas fechadas para o público geral, reservado apenas para vocês. " +
+                    "Léo tenta (sem sucesso) ensinar passos de dança para Jorge, enquanto Betinho e Manuela conferem os lucros " +
+                    "da última turnê. Toin senta num canto, afina o mesmo cavaquinho que trouxe de Feira de Santana, e sorri. " +
+                    "O show continua, e a família está completa.\n\n" +
+                    "Obrigado por jogar 'O Show Tem de Continuar' e descobrir todos os finais!";
+
+            exibirAlertaRolavel(
+                    Alert.AlertType.INFORMATION,
+                    "Finais e Conteúdo Extra",
+                    "EPÍLOGO SECRETO: 5 ANOS DEPOIS",
+                    epilogo,
+                    540
             );
         } else {
             List<String> finais = globais.getFinaisAlcancados();
@@ -138,12 +165,14 @@ public class MenuInicialController {
                 }
             }
 
-            alerta.setHeaderText("Conteúdo Bloqueado");
-            alerta.setContentText(sb.toString());
+            exibirAlertaRolavel(
+                    Alert.AlertType.INFORMATION,
+                    "Finais e Conteúdo Extra",
+                    "Conteúdo Bloqueado",
+                    sb.toString(),
+                    540
+            );
         }
-
-        alerta.getDialogPane().setPrefWidth(520);
-        alerta.showAndWait();
     }
 
     @FXML
@@ -156,7 +185,8 @@ public class MenuInicialController {
         dialog.setTitle("Configurações");
         dialog.setHeaderText("Preferências do Jogo (Salvas Automaticamente)");
 
-        CheckBox chkOcultarHud = new CheckBox("Ocultar HUD (Atalhos: I Inventário | Ctrl+S Salvar | ESC Menu)");        chkOcultarHud.setSelected(config.isOcultarUHD());
+        CheckBox chkOcultarHud = new CheckBox("Ocultar HUD (Atalhos: I Inventário | Ctrl+S Salvar | ESC Menu)");
+        chkOcultarHud.setSelected(config.isOcultarUHD());
 
         ComboBox<String> cbTema = new ComboBox<>();
         cbTema.getItems().addAll("1 - Neutro", "2 - Escuro", "3 - Claro");
