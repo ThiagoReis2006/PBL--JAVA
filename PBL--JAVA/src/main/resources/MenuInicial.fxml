@@ -2,30 +2,34 @@
 
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
-
 
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.GUIController.MenuInicialController">
    <children>
-      <VBox fx:id="vboxMenu" alignment="CENTER" layoutX="317.0" layoutY="174.0" prefHeight="220.0" prefWidth="166.0" spacing="10.0">
+      <ImageView fitHeight="600.0" fitWidth="800.0" pickOnBounds="true">
+         <image>
+            <Image url="@img/fundo_menu.png" />
+         </image>
+      </ImageView>
+      <Region prefHeight="600.0" prefWidth="800.0" styleClass="veu" />
+
+      <Label alignment="CENTER" layoutX="0.0" layoutY="60.0" prefWidth="800.0" styleClass="titulo" text="O SHOW TEM DE CONTINUAR" />
+      <VBox fx:id="vboxMenu" alignment="CENTER" layoutX="250.0" layoutY="130.0" prefWidth="300.0" spacing="8.0">
          <children>
-            <Button fx:id="btnNovaPartida" mnemonicParsing="false" onAction="#acaoNovaPartida" text="Nova Partida" />
-            <Button fx:id="btnContinuar" mnemonicParsing="false" onAction="#acaoContinuar" text="Continuar Partida" />
-            <Button fx:id="btnInstrucoes" mnemonicParsing="false" onAction="#acaoInstrucoes" text="Instruções" />
-            <Button fx:id="btnCarregar" mnemonicParsing="false" onAction="#acaoCarregar" text="Carregar Jogo" />
-            <Button fx:id="btnDeletar" mnemonicParsing="false" onAction="#acaoDeletar" text="Deletar Saves" />
-            <Button fx:id="btnCreditos" mnemonicParsing="false" onAction="#acaoCreditos" text="Créditos" />
-            <Button fx:id="btnSair" mnemonicParsing="false" onAction="#acaoSair" text="Saída" />
-            <Button fx:id="btnFinais" mnemonicParsing="false" onAction="#acaoFinais" text="??? (Desbloqueie os 3 finais)" />
-            <Button fx:id="btnOpcoes" mnemonicParsing="false" onAction="#acaoOpcoes" text="Opções" />
+            <Button fx:id="btnNovaPartida" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoNovaPartida" text="Nova Partida" />
+            <Button fx:id="btnContinuar" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoContinuar" text="Continuar Partida" />
+            <Button fx:id="btnInstrucoes" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoInstrucoes" styleClass="botao-secundario" text="Instruções" />
+            <Button fx:id="btnCarregar" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoCarregar" text="Carregar Jogo" />
+            <Button fx:id="btnDeletar" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoDeletar" styleClass="botao-alerta" text="Deletar Saves" />
+            <Button fx:id="btnCreditos" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoCreditos" styleClass="botao-secundario" text="Créditos" />
+            <Button fx:id="btnSair" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoSair" styleClass="botao-secundario" text="Saída" />
+            <Button fx:id="btnFinais" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoFinais" styleClass="botao-secundario" text="??? (Desbloqueie os 3 finais)" />
+            <Button fx:id="btnOpcoes" maxWidth="Infinity" mnemonicParsing="false" onAction="#acaoOpcoes" styleClass="botao-secundario" text="Opções" />
          </children>
       </VBox>
-      <Label layoutX="231.0" layoutY="83.0" text="O SHOW TEM DE CONTINUAR">
-         <font>
-            <Font size="25.0" />
-         </font>
-      </Label>
    </children>
 </AnchorPane>

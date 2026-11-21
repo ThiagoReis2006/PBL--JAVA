@@ -9,13 +9,14 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
+
 <AnchorPane prefHeight="600.0" prefWidth="800.0" xmlns="http://javafx.com/javafx/26" xmlns:fx="http://javafx.com/fxml/1" fx:controller="View.GUIController.TelaPrincipalController">
     <children>
         <ImageView fx:id="imgCenario" fitHeight="600.0" fitWidth="800.0" layoutY="15.0" pickOnBounds="true" preserveRatio="true" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
         <HBox alignment="CENTER_LEFT" layoutX="20.0" layoutY="14.0" spacing="10.0">
             <children>
                 <ProgressBar fx:id="barProgresso" prefWidth="180.0" progress="0.1" />
-                <Label fx:id="lblCapitulo" text="Capítulo 1/10" />
+                <Label fx:id="lblCapitulo" styleClass="label-hud" text="Capítulo 1/10" />
             </children>
         </HBox>
         <ImageView fx:id="imgPersonagem" fitHeight="400.0" fitWidth="250.0" layoutX="20.0" layoutY="41.0" pickOnBounds="true" preserveRatio="true" />
@@ -30,9 +31,9 @@
         </ScrollPane>
         <VBox fx:id="vboxEscolhas" alignment="TOP_RIGHT" layoutX="430.0" layoutY="20.0" prefHeight="430.0" prefWidth="350.0" spacing="10.0">
             <children>
-                <Button fx:id="btnMenu" mnemonicParsing="false" onAction="#acaoAbrirMenu" text="Menu" />
-                <Button fx:id="btnSalvar" mnemonicParsing="false" onAction="#acaoSalvar" text="Salvar" />
-                <Button fx:id="btnInventario" mnemonicParsing="false" onAction="#acaoAbrirInventario" text="Inventário" />
+                <Button fx:id="btnMenu" mnemonicParsing="false" onAction="#acaoAbrirMenu" styleClass="botao-hud" text="Menu" />
+                <Button fx:id="btnSalvar" mnemonicParsing="false" onAction="#acaoSalvar" styleClass="botao-hud,botao-secundario" text="Salvar" />
+                <Button fx:id="btnInventario" mnemonicParsing="false" onAction="#acaoAbrirInventario" styleClass="botao-hud,botao-alerta" text="Inventário" />
             </children>
         </VBox>
     </children>

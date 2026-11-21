@@ -1,0 +1,135 @@
+/* =====================================================================
+   O SHOW TEM DE CONTINUAR - tema simples (azul / verde / amarelo)
+   Apenas CSS do proprio JavaFX: sem imagens, sem fontes externas.
+   ===================================================================== */
+
+/* ---------- Paleta (mude aqui para mudar o jogo todo) ---------- */
+.root {
+    -azul-noite: #0A1A3F;
+    -azul-palco: #123A8C;
+    -azul: #2F6BFF;
+    -verde: #1FBF75;
+    -amarelo: #FFC93C;
+    -texto: #F5F7FF;
+
+    -fundo-topo: #0A1A3F;
+    -fundo-base: #123A8C;
+    -caixa: rgba(10, 26, 63, 0.92);
+    -texto-historia: -texto;
+
+    -fx-background-color: linear-gradient(to bottom, -fundo-topo, -fundo-base);
+    -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    -fx-font-size: 14px;
+}
+
+/* Temas das Opcoes (so trocam as cores) */
+.root.tema-2 { -fundo-topo: #121212; -fundo-base: #1E1E1E; }
+.root.tema-3 { -fundo-topo: #F1F2F6; -fundo-base: #DDE3F0; -texto: #0A1A3F; -caixa: rgba(255, 255, 255, 0.95); }
+
+/* Cor das letras da historia (Opcoes) */
+.root.letra-verde   { -texto-historia: #1FBF75; }
+.root.letra-amarelo { -texto-historia: #FFC93C; }
+.root.letra-azul    { -texto-historia: #6F9BFF; }
+
+/* ---------- Texto ---------- */
+.label { -fx-text-fill: -texto; }
+
+.titulo {
+    -fx-font-size: 34px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -amarelo;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 10, 0.2, 0, 3);
+}
+.label-destaque { -fx-text-fill: -amarelo; -fx-font-weight: bold; }
+.label-hud      { -fx-font-weight: bold; -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.8), 4, 0.5, 0, 1); }
+.label-historia { -fx-text-fill: -texto-historia; -fx-font-size: 15px; }
+
+/* ---------- Cartao (slots, prologo) ---------- */
+.painel {
+    -fx-background-color: rgba(255, 255, 255, 0.08);
+    -fx-background-radius: 14;
+    -fx-border-color: rgba(255, 201, 60, 0.55);
+    -fx-border-radius: 14;
+    -fx-border-width: 1.5;
+    -fx-padding: 12 16 12 16;
+}
+
+/* ---------- Botoes ---------- */
+.button {
+    -fx-background-color: linear-gradient(to bottom, #4A82FF, #2F6BFF);
+    -fx-background-radius: 12;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-padding: 8 20 8 20;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.35), 8, 0.2, 0, 3);
+}
+.button:hover {
+    -fx-background-color: linear-gradient(to bottom, #3FDB93, #1FBF75);
+    -fx-text-fill: #06122E;
+}
+.button:pressed { -fx-translate-y: 1; -fx-effect: null; }
+.button:focused { -fx-border-color: -amarelo; -fx-border-width: 2; -fx-border-radius: 12; }
+.button:disabled { -fx-opacity: 0.45; }
+
+.botao-secundario { -fx-background-color: linear-gradient(to bottom, #3FDB93, #1FBF75); -fx-text-fill: #06122E; }
+.botao-secundario:hover { -fx-background-color: linear-gradient(to bottom, #FFE08A, #FFC93C); }
+
+.botao-alerta { -fx-background-color: linear-gradient(to bottom, #FFE08A, #FFC93C); -fx-text-fill: #06122E; }
+.botao-alerta:hover { -fx-background-color: linear-gradient(to bottom, #FFFFFF, #F5F7FF); }
+
+.botao-hud { -fx-font-size: 12px; -fx-padding: 5 14 5 14; }
+
+/* Escolhas da historia: faixa escura com detalhe amarelo na esquerda */
+.botao-escolha {
+    -fx-background-color: rgba(10, 26, 63, 0.92);
+    -fx-background-radius: 10;
+    -fx-border-color: transparent transparent transparent -amarelo;
+    -fx-border-width: 0 0 0 5;
+    -fx-border-radius: 10;
+    -fx-alignment: CENTER_LEFT;
+    -fx-text-alignment: left;
+    -fx-text-fill: #F5F7FF;
+}
+.botao-escolha:hover { -fx-background-color: -azul; -fx-text-fill: white; }
+.botao-escolha:focused { -fx-border-color: -amarelo; -fx-border-width: 2; }
+
+/* ---------- Caixa de dialogo da historia ---------- */
+.caixa-dialogo {
+    -fx-background: transparent;
+    -fx-background-color: -caixa;
+    -fx-background-radius: 16;
+    -fx-border-color: -amarelo;
+    -fx-border-width: 2;
+    -fx-border-radius: 16;
+    -fx-padding: 6;
+}
+.caixa-dialogo > .viewport { -fx-background-color: transparent; }
+
+/* ---------- Barra de progresso ---------- */
+.progress-bar > .track {
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-background-radius: 8;
+}
+.progress-bar > .bar {
+    -fx-background-color: linear-gradient(to right, -verde, -amarelo);
+    -fx-background-radius: 8;
+    -fx-background-insets: 0;
+    -fx-padding: 6;
+}
+
+/* ---------- Barra de rolagem fina ---------- */
+.scroll-bar { -fx-background-color: transparent; }
+.scroll-bar > .track,
+.scroll-bar > .track-background { -fx-background-color: transparent; }
+.scroll-bar > .thumb { -fx-background-color: rgba(255, 201, 60, 0.8); -fx-background-radius: 6; }
+.scroll-bar > .increment-button,
+.scroll-bar > .decrement-button { -fx-padding: 0; -fx-background-color: transparent; }
+.scroll-bar > .increment-button > .increment-arrow,
+.scroll-bar > .decrement-button > .decrement-arrow { -fx-padding: 0; }
+
+
+
+/* Camada escura sobre a imagem de fundo do menu (ajuste a opacidade de 0 a 1) */
+.veu { -fx-background-color: rgba(10, 26, 63, 0.45); }

@@ -18,6 +18,12 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
+import java.util.Locale;
+
+import javafx.scene.image.Image;
+import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 public class TelaPrincipalController {
 
@@ -73,39 +79,21 @@ public class TelaPrincipalController {
             lblCapitulo.setManaged(mostrarHud);
         }
 
-        String corFundoTela;
-        String corFundoCaixa;
-        switch (config.getTemaVisual()) {
-            case 2 -> {
-                corFundoTela = "#121212";
-                corFundoCaixa = "#1e1e1e";
-            }
-            case 3 -> {
-                corFundoTela = "#f1f2f6";
-                corFundoCaixa = "#ffffff";
-            }
-            default -> {
-                corFundoTela = "#2f3542";
-                corFundoCaixa = "#3d4452";
-            }
-        }
-
-        String corTexto = switch (config.getCorLetras()) {
-            case "Verde" -> "#2ed573";
-            case "Amarelo" -> "#eccc68";
-            case "Azul" -> "#70a1ff";
-            default -> (config.getTemaVisual() == 3) ? "#2f3542" : "#ffffff";
-        };
-
+        // O visual vem de css/tema.css; aqui so escolhemos o tema e a cor das letras.
         if (scrollDialogo.getParent() instanceof Pane raiz) {
-            raiz.setStyle("-fx-background-color: " + corFundoTela + ";");
+            raiz.getStyleClass().removeIf(c -> c.startsWith("tema-") || c.startsWith("letra-"));
+            raiz.getStyleClass().add("tema-" + config.getTemaVisual());
+
+            String cor = config.getCorLetras();
+            if ("Verde".equals(cor) || "Amarelo".equals(cor) || "Azul".equals(cor)) {
+                raiz.getStyleClass().add("letra-" + cor.toLowerCase(Locale.ROOT));
+            }
         }
-        scrollDialogo.setStyle("-fx-background: " + corFundoCaixa + "; -fx-background-color: " + corFundoCaixa + ";");
-        lblTextoHistoria.setStyle("-fx-text-fill: " + corTexto + ";");
-        if (lblCapitulo != null) {
-            lblCapitulo.setStyle("-fx-text-fill: " + corTexto + ";");
-        }
+        scrollDialogo.getStyleClass().add("caixa-dialogo");
+        lblTextoHistoria.getStyleClass().add("label-historia");
     }
+
+
 
     private void alterarVisibilidadeBotao(Button botao, boolean visivel) {
         if (botao != null) {
@@ -144,6 +132,10 @@ public class TelaPrincipalController {
 
         lblTextoHistoria.setText(cena.getTexto());
         atualizarProgresso(cena.getId());
+        lblTextoHistoria.setText(cena.getTexto());
+        atualizarProgresso(cena.getId());
+        atualizarCenario(cena.getId());
+        scrollDialogo.setVvalue(0);
         scrollDialogo.setVvalue(0);
         limparBotoesEscolha();
 
@@ -190,6 +182,45 @@ public class TelaPrincipalController {
         lblCapitulo.setText("Capítulo " + capitulo + "/10");
     }
 
+    // Guarda as imagens ja carregadas para nao ler o arquivo a cada troca de cena.
+    private static final Map<String, Image> CACHE_CENARIOS = new HashMap<>();
+
+    private void atualizarCenario(CenasIds id) {
+        if (imgCenario == null) return;
+        imgCenario.setFitWidth(800);
+        imgCenario.setFitHeight(600);
+        imgCenario.setPreserveRatio(false);
+        imgCenario.setImage(buscarCenario(id));
+    }
+
+    /** Procura cap7_estudio_garagem_aceitou -> cap7_estudio_garagem -> cap7 -> padrao. */
+    private static Image buscarCenario(CenasIds id) {
+        String nome = id.name().toLowerCase(Locale.ROOT);
+        while (true) {
+            for (String ext : new String[]{".png", ".jpg"}) {
+                Image img = carregarImagem("/img/cenarios/" + nome + ext);
+                if (img != null) return img;
+            }
+            int corte = nome.lastIndexOf('_');
+            if (corte < 0) break;
+            nome = nome.substring(0, corte);
+        }
+        for (String ext : new String[]{".png", ".jpg"}) {
+            Image img = carregarImagem("/img/cenarios/padrao" + ext);
+            if (img != null) return img;
+        }
+        return null; // sem imagem: fica so o fundo do tema
+    }
+
+    private static Image carregarImagem(String caminho) {
+        if (CACHE_CENARIOS.containsKey(caminho)) return CACHE_CENARIOS.get(caminho);
+        URL url = TelaPrincipalController.class.getResource(caminho);
+        // 800x600, sem manter proporcao, com suavizacao: poupa memoria com imagens grandes
+        Image img = (url == null) ? null : new Image(url.toExternalForm(), 800, 600, false, true);
+        CACHE_CENARIOS.put(caminho, img);
+        return img;
+    }
+
     private void processarEscolha(Escolha escolha) {
         SessaoJogo sessao = SessaoJogo.getInstancia();
         IntegracaoJogo jogo = sessao.getJogoAtual();
@@ -219,6 +250,8 @@ public class TelaPrincipalController {
 
     private void adicionarBotao(String texto, Runnable acao) {
         Button b = new Button(texto);
+        b.getStyleClass().add("botao-escolha");
+        b.setWrapText(true);
         b.setWrapText(true);
         b.setMaxWidth(Double.MAX_VALUE);
         b.setOnAction(e -> acao.run());
